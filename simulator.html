@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Easy TV Launcher — Interactive Simulator</title>
+    <style>
+        :root {
+            --bg-body: #080a0f;
+            --tv-bezel: #12141a;
+            --tv-screen-bg: #0c0f17;
+            --card-bg: #1a2130;
+            --card-border: #2e3a52;
+            --focus-glow: #ffd54f;
+            --focus-bg: #26324a;
+            --accent-cyan: #00e5ff;
+            --accent-blue: #3d82f6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --danger-red: #ef4444;
+            --success-green: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar Info */
+        .page-header {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 10px;
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-live {
+            background: #10b98122;
+            color: var(--success-green);
+            border: 1px solid var(--success-green);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .instructions-pill {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            background: #1e2433;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #2f384d;
+        }
+
+        .instructions-pill kbd {
+            background: #0f131a;
+            color: var(--focus-glow);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid #333;
+        }
+
+        /* Main Workspace Container: TV + Remote */
+        .workspace {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+            justify-content: center;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        /* Simulated TV Frame */
+        .tv-frame {
+            position: relative;
+            background: var(--tv-bezel);
+            border: 12px solid #1a1e28;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(61, 130, 246, 0.15);
+            width: 1000px;
+            height: 562.5px; /* 16:9 Aspect Ratio */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TV Screen Area */
+        .tv-screen {
+            flex: 1;
+            background: radial-gradient(circle at 50% 10%, #151a26 0%, #0a0d14 100%);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* TV Status Bar */
+        .tv-status-bar {
+            height: 70px;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tv-brand-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tv-brand-name {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            letter-spacing: 1.5px;
+        }
+
+        .tv-date-display {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .tv-status-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .tv-wifi-icon {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            background: rgba(0, 229, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .tv-clock-display {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Launcher Main Scroll Canvas */
+        .tv-content {
+            flex: 1;
+            padding: 16px 40px 24px 40px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .tv-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .section-label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            margin-top: 10px;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-label.fav {
+            color: var(--focus-glow);
+        }
+
+        /* Horizontal Carousel Rows */
+        .tv-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 22px;
+            overflow-x: auto;
+            padding: 10px 4px;
+        }
+
+        .tv-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* App Card Styles */
+        .app-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            width: 140px;
+            height: 110px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            flex-shrink: 0;
+            outline: none;
+        }
+
+        .app-card .app-icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+            margin-bottom: 8px;
+            transition: transform 0.2s;
+        }
+
+        .app-card .app-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+            max-width: 90%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Senior XL Tile Mode */
+        body.mode-senior .app-card {
+            width: 180px;
+            height: 135px;
+            border-radius: 20px;
+        }
+
+        body.mode-senior .app-card .app-icon-wrap {
+            width: 60px;
+            height: 60px;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        body.mode-senior .app-card .app-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        /* Focus States (TV D-Pad Active Element) */
+        .app-card.focused,
+        .action-card.focused,
+        .control-btn.focused {
+            border-color: var(--focus-glow) !important;
+            box-shadow: 0 0 24px rgba(255, 213, 79, 0.65), 0 8px 16px rgba(0, 0, 0, 0.6);
+            transform: scale(1.1);
+            background: var(--focus-bg) !important;
+            z-index: 10;
+        }
+
+        .app-card.focused .app-title {
+            color: var(--focus-glow);
+        }
+
+        /* Quick Control Actions */
+        .action-card {
+            background: #151a24;
+            border: 2px solid #273145;
+            border-radius: 12px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .action-card .action-icon {
+            font-size: 1.4rem;
+        }
+
+        .action-card .action-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        /* Simulated App Running Screen */
+        .app-view-overlay {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .app-view-overlay.active {
+            display: flex;
+        }
+
+        .app-view-header {
+            position: absolute;
+            top: 24px;
+            left: 32px;
+            right: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-player-banner {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+
+        .app-player-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .app-player-hint {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            background: #111;
+            padding: 8px 20px;
+            border-radius: 30px;
+            border: 1px solid #333;
+            margin-top: 16px;
+        }
+
+        /* PIN Lock Modal */
+        .modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .pin-modal {
+            background: #181e2b;
+            border: 2px solid #2a3449;
+            border-radius: 20px;
+            padding: 28px 36px;
+            width: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        .pin-modal h3 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+
+        .pin-modal p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .pin-dots {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .pin-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--focus-glow);
+            background: transparent;
+            transition: all 0.15s;
+        }
+
+        .pin-dot.filled {
+            background: var(--focus-glow);
+            transform: scale(1.1);
+        }
+
+        .pin-keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        .key-btn {
+            background: #10141d;
+            border: 1px solid #2c3547;
+            color: #fff;
+            padding: 12px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .key-btn.focused {
+            border-color: var(--focus-glow) !important;
+            background: var(--focus-glow) !important;
+            color: #000 !important;
+            transform: scale(1.08);
+        }
+
+        /* Remote Control Device on Right */
+        .remote-panel {
+            background: linear-gradient(145deg, #1f2430, #141720);
+            border: 3px solid #2d3546;
+            border-radius: 36px;
+            padding: 24px 20px;
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 2px 4px rgba(255,255,255,0.1);
+        }
+
+        .remote-header {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .remote-top-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 0 8px;
+        }
+
+        .remote-btn {
+            background: #2a3142;
+            border: 1px solid #3c475d;
+            color: var(--text-primary);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .remote-btn:active {
+            transform: scale(0.92);
+            background: var(--focus-glow);
+            color: #000;
+        }
+
+        .remote-btn.power {
+            background: #dc2626;
+            color: #fff;
+            border-color: #ef4444;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* D-Pad Circle Controller */
+        .dpad {
+            position: relative;
+            width: 170px;
+            height: 170px;
+            background: #181d27;
+            border-radius: 50%;
+            border: 3px solid #343f54;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 22px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .dpad-btn {
+            position: absolute;
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 10px;
+            transition: all 0.1s;
+        }
+
+        .dpad-btn:active {
+            color: var(--focus-glow);
+            transform: scale(1.2);
+        }
+
+        .dpad-up { top: 6px; }
+        .dpad-down { bottom: 6px; }
+        .dpad-left { left: 8px; }
+        .dpad-right { right: 8px; }
+
+        .dpad-center {
+            width: 68px;
+            height: 68px;
+            background: #2b3345;
+            border: 2px solid #44516d;
+            border-radius: 50%;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s;
+        }
+
+        .dpad-center:active {
+            background: var(--focus-glow);
+            color: #000;
+            transform: scale(0.95);
+        }
+
+        /* Navigation Buttons (Back, Home, Menu) */
+        .nav-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 18px;
+        }
+
+        .nav-btn {
+            background: #252c3c;
+            border: 1px solid #3a455c;
+            color: #cbd5e1;
+            padding: 10px 4px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .nav-btn:active {
+            background: var(--focus-glow);
+            color: #000;
+        }
+
+        .sound-toggle-badge {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header bar -->
+    <header class="page-header">
+        <div class="header-title">
+            <span>📺 Android Easy TV Launcher Simulator</span>
+            <span class="badge-live">D-PAD ACTIVE</span>
+        </div>
+        <div class="instructions-pill">
+            Navigate with keyboard <kbd>▲</kbd> <kbd>▼</kbd> <kbd>◄</kbd> <kbd>►</kbd>, <kbd>Enter</kbd> to Open, <kbd>Esc</kbd> for Back, <kbd>M</kbd> for Menu
+        </div>
+    </header>
+
+    <!-- Workspace: TV + Interactive Remote -->
+    <main class="workspace">
+        
+        <!-- Simulated 16:9 Android TV -->
+        <div class="tv-frame">
+            <div class="tv-screen">
+                
+                <!-- Status Bar -->
+                <div class="tv-status-bar">
+                    <div class="tv-brand-info">
+                        <span class="tv-brand-name">EASY TV</span>
+                        <span class="tv-date-display" id="tvDate">Saturday, October 24</span>
+                    </div>
+                    <div class="tv-status-right">
+                        <div class="tv-wifi-icon">
+                            <span>📶</span> Wi-Fi Connected
+                        </div>
+                        <div class="tv-clock-display" id="tvClock">10:45 AM</div>
+                    </div>
+                </div>
+
+                <!-- Main Scrollable TV Launcher Surface -->
+                <div class="tv-content" id="tvContent">
+                    
+                    <!-- 1. Favorites Row -->
+                    <div class="section-label fav">★ FAVORITE APPS</div>
+                    <div class="tv-row" id="favoritesRow">
+                        <div class="app-card focused" tabindex="0" data-app="YouTube" data-color="#e50914" data-icon="▶️">
+                            <div class="app-icon-wrap" style="background: #e5091422; color: #ff0000;">▶️</div>
+                            <div class="app-title">YouTube</div>
+                        </div>
+                        <div class="app-card" tabindex="0" data-app="Netflix" data-color="#e50914" data-icon="🎬">
+                            <div class="app-icon-wrap" style="background: #e5091422; color: #e50914;">🎬</div>
+                            <div class="app-title">Netflix</div>
+                        </div>
+                        <div class="app-card" tabindex="0" data-app="Prime Video" data-color="#00a8e1" data-icon="🍿">
+                            <div class="app-icon-wrap" style="background: #00a8e122; color: #00a8e1;">🍿</div>
+                            <div class="app-title">Prime Video</div>
+                        </div>
+                        <div class="app-card" tabindex="0" data-app="Live TV" data-color="#10b981" data-icon="📡">
+                            <div class="app-icon-wrap" style="background: #10b98122; color: #10b981;">📡</div>
+                            <div class="app-title">Live Channels</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. All Apps Row -->
+                    <div class="section-label">ALL APPLICATIONS</div>
+                    <div class="tv-row" id="allAppsRow">
+                        <div class="app-card" tabindex="0" data-app="Disney+" data-color="#113ccf" data-icon="🏰">
+                            <div class="app-icon-wrap" style="background: #113ccf22; color: #4070ff;">🏰</div>
+                            <div class="app-title">Disney+</div>
+                        </div>
+                        <div class="app-card" tabindex="0" data-app="Spotify" data-color="#1db954" data-icon="🎵">
+                            <div class="app-icon-wrap" style="background: #1db95422; color: #1db954;">🎵</div>
+                            <div class="app-title">Spotify</div>
+                        </div>
+                        <div class="app-card" tabindex="0" data-app="Plex Media" data-color="#e5a00d" data-icon="⚡">
+                            <div class="app-icon-wrap" style="background: #e5a00d22; color: #e5a00d;">⚡</div>
+                            <div class="app-title">Plex</div>
+                        </div>
+                        <div class="app-card" tabindex="0" data-app="Twitch" data-color="#9146ff" data-icon="🎮">
+                            <div class="app-icon-wrap" style="background: #9146ff22; color: #9146ff;">🎮</div>
+                            <div class="app-title">Twitch</div>
+                        </div>
+                        <div class="app-card" tabindex="0" data-app="VLC Player" data-color="#ff7700" data-icon="🔶">
+                            <div class="app-icon-wrap" style="background: #ff770022; color: #ff7700;">🔶</div>
+                            <div class="app-title">VLC</div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Quick Controls -->
+                    <div class="section-label">QUICK CONTROLS</div>
+                    <div class="tv-row" id="controlsRow">
+                        <div class="action-card" tabindex="0" data-action="hdmi1">
+                            <span class="action-icon">📺</span>
+                            <span class="action-text">HDMI 1</span>
+                        </div>
+                        <div class="action-card" tabindex="0" data-action="hdmi2">
+                            <span class="action-icon">🎮</span>
+                            <span class="action-text">HDMI 2</span>
+                        </div>
+                        <div class="action-card" tabindex="0" data-action="toggle-size">
+                            <span class="action-icon">🔍</span>
+                            <span class="action-text" id="sizeToggleText">Mode: Senior XL</span>
+                        </div>
+                        <div class="action-card" tabindex="0" data-action="settings">
+                            <span class="action-icon">🔒</span>
+                            <span class="action-text">Settings (PIN)</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Simulated App Running View -->
+                <div class="app-view-overlay" id="appOverlay">
+                    <div class="app-view-header">
+                        <span style="font-weight: 700; color: var(--accent-cyan);" id="overlayAppName">App</span>
+                        <button class="remote-btn" onclick="exitApp()">✕ Close App</button>
+                    </div>
+                    <div class="app-player-banner" id="overlayAppIcon">▶️</div>
+                    <div class="app-player-title" id="overlayAppTitle">Playing YouTube</div>
+                    <div class="app-player-hint">Press <kbd>ESC</kbd> or <kbd>BACK</kbd> on remote to return to Easy Launcher</div>
+                </div>
+
+                <!-- Caregiver PIN Lock Modal -->
+                <div class="modal-backdrop" id="pinModal">
+                    <div class="pin-modal">
+                        <h3>🔒 Caregiver PIN</h3>
+                        <p id="pinStatusText">Enter 4 digits to access Settings (Default: 1234)</p>
+                        
+                        <div class="pin-dots">
+                            <div class="pin-dot" id="dot0"></div>
+                            <div class="pin-dot" id="dot1"></div>
+                            <div class="pin-dot" id="dot2"></div>
+                            <div class="pin-dot" id="dot3"></div>
+                        </div>
+
+                        <div class="pin-keypad">
+                            <button class="key-btn" onclick="enterDigit('1')">1</button>
+                            <button class="key-btn" onclick="enterDigit('2')">2</button>
+                            <button class="key-btn" onclick="enterDigit('3')">3</button>
+                            <button class="key-btn" onclick="enterDigit('4')">4</button>
+                            <button class="key-btn" onclick="enterDigit('5')">5</button>
+                            <button class="key-btn" onclick="enterDigit('6')">6</button>
+                            <button class="key-btn" onclick="enterDigit('7')">7</button>
+                            <button class="key-btn" onclick="enterDigit('8')">8</button>
+                            <button class="key-btn" onclick="enterDigit('9')">9</button>
+                            <button class="key-btn" onclick="clearPin()" style="color: var(--danger-red)">C</button>
+                            <button class="key-btn" onclick="enterDigit('0')">0</button>
+                            <button class="key-btn" onclick="closePinModal()">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Virtual TV Remote Controller -->
+        <aside class="remote-panel">
+            <div class="remote-header">TV Remote</div>
+
+            <div class="remote-top-row">
+                <button class="remote-btn power" title="Power / Reset" onclick="resetFocus()">⏻</button>
+                <button class="remote-btn" title="Toggle Senior XL Mode" onclick="toggleSizeMode()">XL</button>
+                <button class="remote-btn" title="Mute/Unmute Audio" onclick="toggleAudio()" id="audioBtn">🔊</button>
+            </div>
+
+            <!-- D-Pad -->
+            <div class="dpad">
+                <button class="dpad-btn dpad-up" onclick="moveFocus('up')">▲</button>
+                <button class="dpad-btn dpad-down" onclick="moveFocus('down')">▼</button>
+                <button class="dpad-btn dpad-left" onclick="moveFocus('left')">◄</button>
+                <button class="dpad-btn dpad-right" onclick="moveFocus('right')">►</button>
+                <button class="dpad-center" onclick="triggerSelect()">OK</button>
+            </div>
+
+            <!-- Navigation Bar -->
+            <div class="nav-controls">
+                <button class="nav-btn" onclick="triggerBack()">BACK</button>
+                <button class="nav-btn" onclick="triggerHome()">HOME</button>
+                <button class="nav-btn" onclick="triggerMenu()">MENU</button>
+            </div>
+
+            <div class="sound-toggle-badge">
+                Web Audio Synthesizer: <strong>Active</strong>
+            </div>
+        </aside>
+
+    </main>
+
+    <script>
+        // Audio Synthesizer (TV Remote Sound Effects)
+        let audioEnabled = true;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'focus') {
+                    // Quick high crisp click
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.04);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                    osc.start(now);
+                    osc.stop(now + 0.04);
+                } else if (type === 'select') {
+                    // Pleasant ascending chime
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.12); // G5
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } else if (type === 'back') {
+                    // Soft descending tone
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(300, now + 0.08);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'error') {
+                    // Low buzz
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                }
+            } catch (e) {
+                // AudioContext not allowed or muted
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('audioBtn').innerText = audioEnabled ? '🔊' : '🔇';
+        }
+
+        // Live Clock and Date
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            const dateStr = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+            document.getElementById('tvClock').innerText = timeStr;
+            document.getElementById('tvDate').innerText = dateStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 2D Grid Focus Management
+        // Rows: 0 = Favorites, 1 = All Apps, 2 = Quick Controls
+        let currentRow = 0;
+        let currentCol = 0;
+        let isAppOpen = false;
+        let isPinOpen = false;
+
+        const rowContainers = ['favoritesRow', 'allAppsRow', 'controlsRow'];
+
+        function getFocusableItems(rowIndex) {
+            const container = document.getElementById(rowContainers[rowIndex]);
+            return container ? Array.from(container.children) : [];
+        }
+
+        function updateFocusVisual() {
+            document.querySelectorAll('.focused').forEach(el => el.classList.remove('focused'));
+
+            const items = getFocusableItems(currentRow);
+            if (items.length > 0) {
+                if (currentCol >= items.length) currentCol = items.length - 1;
+                if (currentCol < 0) currentCol = 0;
+
+                const target = items[currentCol];
+                target.classList.add('focused');
+                target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                playSound('focus');
+            }
+        }
+
+        function moveFocus(dir) {
+            if (isAppOpen || isPinOpen) return;
+
+            if (dir === 'up') {
+                if (currentRow > 0) {
+                    currentRow--;
+                    updateFocusVisual();
+                }
+            } else if (dir === 'down') {
+                if (currentRow < rowContainers.length - 1) {
+                    currentRow++;
+                    updateFocusVisual();
+                }
+            } else if (dir === 'left') {
+                if (currentCol > 0) {
+                    currentCol--;
+                    updateFocusVisual();
+                }
+            } else if (dir === 'right') {
+                const items = getFocusableItems(currentRow);
+                if (currentCol < items.length - 1) {
+                    currentCol++;
+                    updateFocusVisual();
+                }
+            }
+        }
+
+        function triggerSelect() {
+            if (isPinOpen) return;
+            if (isAppOpen) return;
+
+            const items = getFocusableItems(currentRow);
+            const target = items[currentCol];
+            if (!target) return;
+
+            if (target.dataset.app) {
+                launchApp(target.dataset.app, target.dataset.icon);
+            } else if (target.dataset.action) {
+                handleAction(target.dataset.action);
+            }
+        }
+
+        function triggerBack() {
+            if (isPinOpen) {
+                closePinModal();
+                playSound('back');
+                return;
+            }
+            if (isAppOpen) {
+                exitApp();
+                playSound('back');
+                return;
+            }
+            // If on home, return focus cleanly to first item (item 0, row 0)
+            currentRow = 0;
+            currentCol = 0;
+            updateFocusVisual();
+            playSound('back');
+        }
+
+        function triggerHome() {
+            if (isPinOpen) closePinModal();
+            if (isAppOpen) exitApp();
+            currentRow = 0;
+            currentCol = 0;
+            updateFocusVisual();
+            playSound('select');
+        }
+
+        function triggerMenu() {
+            alert("TV Menu: Press 'XL' to toggle Senior XL mode, or select Settings for Caregiver options.");
+        }
+
+        function resetFocus() {
+            currentRow = 0;
+            currentCol = 0;
+            updateFocusVisual();
+        }
+
+        // App Launch Simulation
+        function launchApp(appName, icon) {
+            playSound('select');
+            isAppOpen = true;
+            document.getElementById('overlayAppName').innerText = appName;
+            document.getElementById('overlayAppIcon').innerText = icon;
+            document.getElementById('overlayAppTitle').innerText = 'Running ' + appName;
+            document.getElementById('appOverlay').classList.add('active');
+        }
+
+        function exitApp() {
+            isAppOpen = false;
+            document.getElementById('appOverlay').classList.remove('active');
+            updateFocusVisual();
+        }
+
+        // Quick Controls
+        let currentPin = '';
+        const CORRECT_PIN = '1234';
+
+        function handleAction(action) {
+            playSound('select');
+            if (action === 'toggle-size') {
+                toggleSizeMode();
+            } else if (action === 'hdmi1') {
+                launchApp('HDMI 1 Input', '📺');
+            } else if (action === 'hdmi2') {
+                launchApp('HDMI 2 (Console)', '🎮');
+            } else if (action === 'settings') {
+                openPinModal();
+            }
+        }
+
+        function toggleSizeMode() {
+            document.body.classList.toggle('mode-senior');
+            const isSenior = document.body.classList.contains('mode-senior');
+            document.getElementById('sizeToggleText').innerText = isSenior ? 'Mode: Senior XL' : 'Mode: Standard';
+            playSound('select');
+            updateFocusVisual();
+        }
+
+        // Default to Senior XL mode for easy accessibility!
+        document.body.classList.add('mode-senior');
+
+        // PIN Dialog
+        function openPinModal() {
+            isPinOpen = true;
+            currentPin = '';
+            updatePinDots();
+            document.getElementById('pinStatusText').innerText = "Enter 4 digits to access Settings (Default: 1234)";
+            document.getElementById('pinStatusText').style.color = "var(--text-secondary)";
+            document.getElementById('pinModal').classList.add('active');
+        }
+
+        function closePinModal() {
+            isPinOpen = false;
+            document.getElementById('pinModal').classList.remove('active');
+            updateFocusVisual();
+        }
+
+        function enterDigit(d) {
+            if (currentPin.length < 4) {
+                currentPin += d;
+                playSound('focus');
+                updatePinDots();
+
+                if (currentPin.length === 4) {
+                    setTimeout(verifyPin, 150);
+                }
+            }
+        }
+
+        function clearPin() {
+            currentPin = '';
+            playSound('back');
+            updatePinDots();
+        }
+
+        function updatePinDots() {
+            for (let i = 0; i < 4; i++) {
+                const dot = document.getElementById('dot' + i);
+                if (i < currentPin.length) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled');
+                }
+            }
+        }
+
+        function verifyPin() {
+            if (currentPin === CORRECT_PIN) {
+                playSound('select');
+                closePinModal();
+                alert("PIN Verified! Access granted to Android TV System Settings.");
+            } else {
+                playSound('error');
+                document.getElementById('pinStatusText').innerText = "❌ Incorrect PIN! Try again.";
+                document.getElementById('pinStatusText').style.color = "var(--danger-red)";
+                currentPin = '';
+                updatePinDots();
+            }
+        }
+
+        // Keyboard Listener (Arrow Keys, Enter, Esc, Numbers)
+        window.addEventListener('keydown', (e) => {
+            if (isPinOpen) {
+                if (e.key >= '0' && e.key <= '9') {
+                    enterDigit(e.key);
+                } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                    clearPin();
+                } else if (e.key === 'Escape') {
+                    closePinModal();
+                }
+                return;
+            }
+
+            switch (e.key) {
+                case 'ArrowUp':
+                    e.preventDefault();
+                    moveFocus('up');
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    moveFocus('down');
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    moveFocus('left');
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    moveFocus('right');
+                    break;
+                case 'Enter':
+                case ' ':
+                    e.preventDefault();
+                    triggerSelect();
+                    break;
+                case 'Escape':
+                case 'Backspace':
+                    e.preventDefault();
+                    triggerBack();
+                    break;
+                case 'h':
+                case 'H':
+                case 'Home':
+                    triggerHome();
+                    break;
+                case 'm':
+                case 'M':
+                    triggerMenu();
+                    break;
+                case 's':
+                case 'S':
+                    toggleSizeMode();
+                    break;
+            }
+        });
+
+        // Initialize First Focus
+        updateFocusVisual();
+    </script>
+</body>
+</html>
