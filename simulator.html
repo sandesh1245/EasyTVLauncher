@@ -314,6 +314,123 @@
             font-weight: 600;
         }
 
+        /* Launcher Mode Bar (Normal, Senior, Kids Safe, Private) */
+        .mode-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding: 4px 0;
+            overflow-x: auto;
+        }
+        .mode-bar::-webkit-scrollbar { display: none; }
+
+        .mode-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 18px;
+            border-radius: 30px;
+            background: #151b27;
+            border: 2px solid #2c384e;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            outline: none;
+        }
+
+        .mode-chip.active {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            color: #ffffff;
+            border-color: #60a5fa;
+            box-shadow: 0 0 16px rgba(37, 99, 235, 0.5);
+        }
+
+        .mode-chip.active.kids {
+            background: linear-gradient(135deg, #ea580c, #f97316);
+            border-color: #fdba74;
+            box-shadow: 0 0 16px rgba(249, 115, 22, 0.5);
+        }
+
+        .mode-chip.active.private {
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
+            border-color: #c084fc;
+            box-shadow: 0 0 16px rgba(147, 51, 234, 0.5);
+        }
+
+        .mode-chip.active.senior {
+            background: linear-gradient(135deg, #059669, #10b981);
+            border-color: #6ee7b7;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+        }
+
+        .mode-chip.focused {
+            border-color: var(--focus-glow) !important;
+            box-shadow: 0 0 20px rgba(255, 213, 79, 0.7) !important;
+            transform: scale(1.08);
+            color: #fff !important;
+            z-index: 10;
+        }
+
+        /* App Lock Badge */
+        .app-lock-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            font-size: 0.72rem;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+        }
+
+        /* Kids Mode banner */
+        .mode-banner {
+            display: none;
+            background: linear-gradient(90deg, rgba(249, 115, 22, 0.2), rgba(234, 88, 12, 0.05));
+            border-left: 4px solid #f97316;
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            font-size: 0.85rem;
+            color: #fdba74;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Toast notification */
+        .toast-notify {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(50px);
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #334155;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 150;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+        }
+        .toast-notify.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
         /* Simulated App Running Screen */
         .app-view-overlay {
             position: absolute;
@@ -610,7 +727,7 @@
             <span class="badge-live">D-PAD ACTIVE</span>
         </div>
         <div class="instructions-pill">
-            Navigate with keyboard <kbd>▲</kbd> <kbd>▼</kbd> <kbd>◄</kbd> <kbd>►</kbd>, <kbd>Enter</kbd> to Open, <kbd>Esc</kbd> for Back, <kbd>M</kbd> for Menu
+            <kbd>▲▼◄►</kbd> Navigate | <kbd>Enter</kbd> Open | <kbd>L</kbd> Lock App (PIN) | <kbd>1-4</kbd> Modes (Normal, Senior, Kids, Private)
         </div>
     </header>
 
@@ -637,55 +754,94 @@
 
                 <!-- Main Scrollable TV Launcher Surface -->
                 <div class="tv-content" id="tvContent">
-                    
+
+                    <!-- 0. Launcher Mode Switcher Bar -->
+                    <div class="mode-bar" id="modeRow">
+                        <button class="mode-chip" tabindex="0" data-mode="NORMAL" onclick="selectMode('NORMAL')">
+                            <span>📺</span> Normal Mode
+                        </button>
+                        <button class="mode-chip active senior" tabindex="0" data-mode="SENIOR" onclick="selectMode('SENIOR')">
+                            <span>👴</span> Senior Mode
+                        </button>
+                        <button class="mode-chip kids" tabindex="0" data-mode="KIDS" onclick="selectMode('KIDS')">
+                            <span>🧒</span> Kids Safe
+                        </button>
+                        <button class="mode-chip private" tabindex="0" data-mode="PRIVATE" onclick="selectMode('PRIVATE')">
+                            <span>🔐</span> Private Mode
+                        </button>
+                    </div>
+
+                    <!-- Mode Info Banners -->
+                    <div class="mode-banner" id="kidsBanner">
+                        <span>🧒</span> <strong>Kids Safe Zone:</strong> Only child-approved apps visible. System settings locked.
+                    </div>
+                    <div class="mode-banner" id="privateBanner" style="background: linear-gradient(90deg, rgba(147, 51, 234, 0.25), rgba(124, 58, 237, 0.05)); border-color: #a855f7; color: #d8b4fe;">
+                        <span>🔐</span> <strong>Private Vault Unlocked:</strong> Confidential & private apps are now visible.
+                    </div>
+
                     <!-- 1. Favorites Row -->
-                    <div class="section-label fav">★ FAVORITE APPS</div>
+                    <div class="section-label fav" id="favLabel">★ FAVORITE APPS</div>
                     <div class="tv-row" id="favoritesRow">
-                        <div class="app-card focused" tabindex="0" data-app="YouTube" data-color="#e50914" data-icon="▶️">
+                        <div class="app-card focused" tabindex="0" data-app="YouTube" data-color="#e50914" data-icon="▶️" data-kids="false" data-private="false" data-locked="false">
                             <div class="app-icon-wrap" style="background: #e5091422; color: #ff0000;">▶️</div>
                             <div class="app-title">YouTube</div>
                         </div>
-                        <div class="app-card" tabindex="0" data-app="Netflix" data-color="#e50914" data-icon="🎬">
+                        <div class="app-card" tabindex="0" data-app="Netflix" data-color="#e50914" data-icon="🎬" data-kids="false" data-private="false" data-locked="true">
+                            <span class="app-lock-badge" title="PIN Locked">🔒</span>
                             <div class="app-icon-wrap" style="background: #e5091422; color: #e50914;">🎬</div>
                             <div class="app-title">Netflix</div>
                         </div>
-                        <div class="app-card" tabindex="0" data-app="Prime Video" data-color="#00a8e1" data-icon="🍿">
+                        <div class="app-card" tabindex="0" data-app="Disney+" data-color="#113ccf" data-icon="🏰" data-kids="true" data-private="false" data-locked="false">
+                            <div class="app-icon-wrap" style="background: #113ccf22; color: #4070ff;">🏰</div>
+                            <div class="app-title">Disney+</div>
+                        </div>
+                        <div class="app-card" tabindex="0" data-app="Prime Video" data-color="#00a8e1" data-icon="🍿" data-kids="false" data-private="false" data-locked="false">
                             <div class="app-icon-wrap" style="background: #00a8e122; color: #00a8e1;">🍿</div>
                             <div class="app-title">Prime Video</div>
                         </div>
-                        <div class="app-card" tabindex="0" data-app="Live TV" data-color="#10b981" data-icon="📡">
+                        <div class="app-card" tabindex="0" data-app="Live TV" data-color="#10b981" data-icon="📡" data-kids="false" data-private="false" data-locked="false">
                             <div class="app-icon-wrap" style="background: #10b98122; color: #10b981;">📡</div>
                             <div class="app-title">Live Channels</div>
                         </div>
                     </div>
 
                     <!-- 2. All Apps Row -->
-                    <div class="section-label">ALL APPLICATIONS</div>
+                    <div class="section-label" id="allLabel">ALL APPLICATIONS</div>
                     <div class="tv-row" id="allAppsRow">
-                        <div class="app-card" tabindex="0" data-app="Disney+" data-color="#113ccf" data-icon="🏰">
-                            <div class="app-icon-wrap" style="background: #113ccf22; color: #4070ff;">🏰</div>
-                            <div class="app-title">Disney+</div>
+                        <div class="app-card" tabindex="0" data-app="YouTube Kids" data-color="#ff0000" data-icon="🧒" data-kids="true" data-private="false" data-locked="false">
+                            <div class="app-icon-wrap" style="background: #ff000022; color: #ff3333;">🧒</div>
+                            <div class="app-title">YT Kids</div>
                         </div>
-                        <div class="app-card" tabindex="0" data-app="Spotify" data-color="#1db954" data-icon="🎵">
+                        <div class="app-card" tabindex="0" data-app="ABCmouse" data-color="#f59e0b" data-icon="🐭" data-kids="true" data-private="false" data-locked="false">
+                            <div class="app-icon-wrap" style="background: #f59e0b22; color: #f59e0b;">🐭</div>
+                            <div class="app-title">ABCmouse</div>
+                        </div>
+                        <div class="app-card" tabindex="0" data-app="Spotify" data-color="#1db954" data-icon="🎵" data-kids="false" data-private="false" data-locked="false">
                             <div class="app-icon-wrap" style="background: #1db95422; color: #1db954;">🎵</div>
                             <div class="app-title">Spotify</div>
                         </div>
-                        <div class="app-card" tabindex="0" data-app="Plex Media" data-color="#e5a00d" data-icon="⚡">
+                        <div class="app-card" tabindex="0" data-app="Plex Media" data-color="#e5a00d" data-icon="⚡" data-kids="false" data-private="false" data-locked="false">
                             <div class="app-icon-wrap" style="background: #e5a00d22; color: #e5a00d;">⚡</div>
                             <div class="app-title">Plex</div>
                         </div>
-                        <div class="app-card" tabindex="0" data-app="Twitch" data-color="#9146ff" data-icon="🎮">
+                        <div class="app-card" tabindex="0" data-app="Twitch" data-color="#9146ff" data-icon="🎮" data-kids="false" data-private="false" data-locked="true">
+                            <span class="app-lock-badge" title="PIN Locked">🔒</span>
                             <div class="app-icon-wrap" style="background: #9146ff22; color: #9146ff;">🎮</div>
                             <div class="app-title">Twitch</div>
                         </div>
-                        <div class="app-card" tabindex="0" data-app="VLC Player" data-color="#ff7700" data-icon="🔶">
+                        <div class="app-card" tabindex="0" data-app="Private Gallery" data-color="#9333ea" data-icon="📁" data-kids="false" data-private="true" data-locked="true" style="display:none;">
+                            <span class="app-lock-badge" title="PIN Locked">🔒</span>
+                            <div class="app-icon-wrap" style="background: #9333ea22; color: #c084fc;">📁</div>
+                            <div class="app-title">Vault Gallery</div>
+                        </div>
+                        <div class="app-card" tabindex="0" data-app="VLC Player" data-color="#ff7700" data-icon="🔶" data-kids="false" data-private="false" data-locked="false">
                             <div class="app-icon-wrap" style="background: #ff770022; color: #ff7700;">🔶</div>
                             <div class="app-title">VLC</div>
                         </div>
                     </div>
 
                     <!-- 3. Quick Controls -->
-                    <div class="section-label">QUICK CONTROLS</div>
+                    <div class="section-label" id="controlsLabel">QUICK CONTROLS</div>
                     <div class="tv-row" id="controlsRow">
                         <div class="action-card" tabindex="0" data-action="hdmi1">
                             <span class="action-icon">📺</span>
@@ -695,17 +851,20 @@
                             <span class="action-icon">🎮</span>
                             <span class="action-text">HDMI 2</span>
                         </div>
-                        <div class="action-card" tabindex="0" data-action="toggle-size">
-                            <span class="action-icon">🔍</span>
-                            <span class="action-text" id="sizeToggleText">Mode: Senior XL</span>
+                        <div class="action-card" tabindex="0" data-action="toggle-lock">
+                            <span class="action-icon">🔒</span>
+                            <span class="action-text">Lock App</span>
                         </div>
                         <div class="action-card" tabindex="0" data-action="settings">
-                            <span class="action-icon">🔒</span>
+                            <span class="action-icon">⚙️</span>
                             <span class="action-text">Settings (PIN)</span>
                         </div>
                     </div>
 
                 </div>
+
+                <!-- Toast Notification Banner -->
+                <div class="toast-notify" id="toastNotify">Notification</div>
 
                 <!-- Simulated App Running View -->
                 <div class="app-view-overlay" id="appOverlay">
@@ -721,8 +880,8 @@
                 <!-- Caregiver PIN Lock Modal -->
                 <div class="modal-backdrop" id="pinModal">
                     <div class="pin-modal">
-                        <h3>🔒 Caregiver PIN</h3>
-                        <p id="pinStatusText">Enter 4 digits to access Settings (Default: 1234)</p>
+                        <h3 id="pinModalTitle">🔒 Security PIN Required</h3>
+                        <p id="pinStatusText">Enter 4 digits (Default: 1234)</p>
                         
                         <div class="pin-dots">
                             <div class="pin-dot" id="dot0"></div>
@@ -757,7 +916,8 @@
 
             <div class="remote-top-row">
                 <button class="remote-btn power" title="Power / Reset" onclick="resetFocus()">⏻</button>
-                <button class="remote-btn" title="Toggle Senior XL Mode" onclick="toggleSizeMode()">XL</button>
+                <button class="remote-btn" title="Toggle Lock on Selected App" onclick="toggleCurrentAppLock()">🔒 Lock</button>
+                <button class="remote-btn" title="Cycle Launcher Mode" onclick="cycleNextMode()">Mode</button>
                 <button class="remote-btn" title="Mute/Unmute Audio" onclick="toggleAudio()" id="audioBtn">🔊</button>
             </div>
 
@@ -857,23 +1017,74 @@
         updateClock();
 
         // 2D Grid Focus Management
-        // Rows: 0 = Favorites, 1 = All Apps, 2 = Quick Controls
-        let currentRow = 0;
+        // 2D Grid Focus Management
+        // Rows: 0 = Mode Selector, 1 = Favorites, 2 = All Apps, 3 = Quick Controls
+        let currentRow = 1;
         let currentCol = 0;
         let isAppOpen = false;
         let isPinOpen = false;
+        let pinPurpose = 'SETTINGS'; // 'SETTINGS', 'APP_LOCK', 'PRIVATE_MODE', 'EXIT_KIDS'
+        let pendingAppTarget = null;
+        let pendingModeTarget = null;
 
-        const rowContainers = ['favoritesRow', 'allAppsRow', 'controlsRow'];
+        let activeLauncherMode = 'SENIOR'; // 'NORMAL', 'SENIOR', 'KIDS', 'PRIVATE'
+        let currentPin = '';
+        const CORRECT_PIN = '1234';
+
+        const rowContainers = ['modeRow', 'favoritesRow', 'allAppsRow', 'controlsRow'];
+
+        function showToast(message) {
+            const toast = document.getElementById('toastNotify');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2400);
+        }
+
+        function getVisibleChildren(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return [];
+            if (activeLauncherMode === 'KIDS' && containerId === 'controlsRow') {
+                return []; // Hide controls in Kids mode
+            }
+            return Array.from(container.children).filter(el => {
+                if (el.style.display === 'none') return false;
+                if (activeLauncherMode === 'KIDS') {
+                    // In Kids mode, only show kids approved apps (unless it's modeRow)
+                    if (containerId === 'favoritesRow' || containerId === 'allAppsRow') {
+                        return el.dataset.kids === 'true';
+                    }
+                }
+                if (activeLauncherMode !== 'PRIVATE') {
+                    // In non-private modes, hide private apps
+                    if (el.dataset.private === 'true') return false;
+                }
+                return true;
+            });
+        }
 
         function getFocusableItems(rowIndex) {
-            const container = document.getElementById(rowContainers[rowIndex]);
-            return container ? Array.from(container.children) : [];
+            return getVisibleChildren(rowContainers[rowIndex]);
         }
 
         function updateFocusVisual() {
             document.querySelectorAll('.focused').forEach(el => el.classList.remove('focused'));
 
-            const items = getFocusableItems(currentRow);
+            // Ensure currentRow is on a valid visible row
+            let items = getFocusableItems(currentRow);
+            if (items.length === 0) {
+                // Find nearest row with items
+                for (let r = 0; r < rowContainers.length; r++) {
+                    const rowItems = getFocusableItems(r);
+                    if (rowItems.length > 0) {
+                        currentRow = r;
+                        items = rowItems;
+                        break;
+                    }
+                }
+            }
+
             if (items.length > 0) {
                 if (currentCol >= items.length) currentCol = items.length - 1;
                 if (currentCol < 0) currentCol = 0;
@@ -889,14 +1100,20 @@
             if (isAppOpen || isPinOpen) return;
 
             if (dir === 'up') {
-                if (currentRow > 0) {
-                    currentRow--;
-                    updateFocusVisual();
+                for (let r = currentRow - 1; r >= 0; r--) {
+                    if (getFocusableItems(r).length > 0) {
+                        currentRow = r;
+                        updateFocusVisual();
+                        return;
+                    }
                 }
             } else if (dir === 'down') {
-                if (currentRow < rowContainers.length - 1) {
-                    currentRow++;
-                    updateFocusVisual();
+                for (let r = currentRow + 1; r < rowContainers.length; r++) {
+                    if (getFocusableItems(r).length > 0) {
+                        currentRow = r;
+                        updateFocusVisual();
+                        return;
+                    }
                 }
             } else if (dir === 'left') {
                 if (currentCol > 0) {
@@ -920,8 +1137,10 @@
             const target = items[currentCol];
             if (!target) return;
 
-            if (target.dataset.app) {
-                launchApp(target.dataset.app, target.dataset.icon);
+            if (target.dataset.mode) {
+                selectMode(target.dataset.mode);
+            } else if (target.dataset.app) {
+                attemptLaunchApp(target);
             } else if (target.dataset.action) {
                 handleAction(target.dataset.action);
             }
@@ -938,8 +1157,8 @@
                 playSound('back');
                 return;
             }
-            // If on home, return focus cleanly to first item (item 0, row 0)
-            currentRow = 0;
+            // Return focus to first app in Favorites
+            currentRow = 1;
             currentCol = 0;
             updateFocusVisual();
             playSound('back');
@@ -948,23 +1167,37 @@
         function triggerHome() {
             if (isPinOpen) closePinModal();
             if (isAppOpen) exitApp();
-            currentRow = 0;
+            currentRow = 1;
             currentCol = 0;
             updateFocusVisual();
             playSound('select');
         }
 
         function triggerMenu() {
-            alert("TV Menu: Press 'XL' to toggle Senior XL mode, or select Settings for Caregiver options.");
+            showToast("Modes: Normal, Senior, Kids, Private. Press [L] to Lock/Unlock selected app.");
         }
 
         function resetFocus() {
-            currentRow = 0;
+            currentRow = 1;
             currentCol = 0;
             updateFocusVisual();
         }
 
-        // App Launch Simulation
+        // App Launch Simulation & App Locker Verification
+        function attemptLaunchApp(appEl) {
+            const appName = appEl.dataset.app;
+            const appIcon = appEl.dataset.icon;
+            const isLocked = appEl.dataset.locked === 'true';
+
+            if (isLocked) {
+                // App is locked! Prompt caregiver PIN
+                pendingAppTarget = { appName, appIcon, el: appEl };
+                openPinModal('APP_LOCK', `Locked App: Enter PIN to open ${appName}`);
+            } else {
+                launchApp(appName, appIcon);
+            }
+        }
+
         function launchApp(appName, icon) {
             playSound('select');
             isAppOpen = true;
@@ -980,46 +1213,167 @@
             updateFocusVisual();
         }
 
-        // Quick Controls
-        let currentPin = '';
-        const CORRECT_PIN = '1234';
+        // App Locker: Toggle Lock on focused app
+        function toggleCurrentAppLock() {
+            const items = getFocusableItems(currentRow);
+            const target = items[currentCol];
+            if (!target || !target.dataset.app) {
+                showToast("Navigate to an app first to Lock or Unlock it");
+                return;
+            }
 
-        function handleAction(action) {
-            playSound('select');
-            if (action === 'toggle-size') {
-                toggleSizeMode();
-            } else if (action === 'hdmi1') {
-                launchApp('HDMI 1 Input', '📺');
-            } else if (action === 'hdmi2') {
-                launchApp('HDMI 2 (Console)', '🎮');
-            } else if (action === 'settings') {
-                openPinModal();
+            const appName = target.dataset.app;
+            const isLocked = target.dataset.locked === 'true';
+            if (isLocked) {
+                target.dataset.locked = 'false';
+                const badge = target.querySelector('.app-lock-badge');
+                if (badge) badge.remove();
+                showToast(`🔓 ${appName} Unlocked`);
+                playSound('select');
+            } else {
+                target.dataset.locked = 'true';
+                if (!target.querySelector('.app-lock-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'app-lock-badge';
+                    badge.title = 'PIN Locked';
+                    badge.innerText = '🔒';
+                    target.appendChild(badge);
+                }
+                showToast(`🔒 ${appName} Locked with PIN`);
+                playSound('focus');
             }
         }
 
-        function toggleSizeMode() {
-            document.body.classList.toggle('mode-senior');
-            const isSenior = document.body.classList.contains('mode-senior');
-            document.getElementById('sizeToggleText').innerText = isSenior ? 'Mode: Senior XL' : 'Mode: Standard';
+        // Mode Switching System (Normal, Senior, Kids, Private)
+        function selectMode(targetMode) {
+            if (targetMode === activeLauncherMode) return;
+
+            // Protection: Exiting Kids mode requires PIN
+            if (activeLauncherMode === 'KIDS' && targetMode !== 'KIDS') {
+                pendingModeTarget = targetMode;
+                openPinModal('EXIT_KIDS', "Enter Caregiver PIN to exit Kids Safe Mode");
+                return;
+            }
+
+            // Protection: Entering Private mode requires PIN
+            if (targetMode === 'PRIVATE') {
+                pendingModeTarget = 'PRIVATE';
+                openPinModal('PRIVATE_MODE', "Enter Caregiver PIN to access Private Vault");
+                return;
+            }
+
+            applyMode(targetMode);
+        }
+
+        function cycleNextMode() {
+            const modes = ['NORMAL', 'SENIOR', 'KIDS', 'PRIVATE'];
+            const nextIdx = (modes.indexOf(activeLauncherMode) + 1) % modes.length;
+            selectMode(modes[nextIdx]);
+        }
+
+        function applyMode(mode) {
+            activeLauncherMode = mode;
             playSound('select');
+
+            // 1. Update Mode Chips in Bar
+            document.querySelectorAll('.mode-chip').forEach(chip => {
+                chip.classList.remove('active');
+                if (chip.dataset.mode === mode) {
+                    chip.classList.add('active');
+                }
+            });
+
+            // 2. Mode-specific adjustments
+            const kidsBanner = document.getElementById('kidsBanner');
+            const privateBanner = document.getElementById('privateBanner');
+            const controlsRow = document.getElementById('controlsRow');
+            const controlsLabel = document.getElementById('controlsLabel');
+            const vaultApp = document.querySelector('[data-app="Private Gallery"]');
+
+            // Senior Mode: XL Cards
+            if (mode === 'SENIOR') {
+                document.body.classList.add('mode-senior');
+            } else {
+                document.body.classList.remove('mode-senior');
+            }
+
+            // Kids Mode: Safe Zone, filter apps, hide controls
+            if (mode === 'KIDS') {
+                kidsBanner.style.display = 'flex';
+                controlsRow.style.display = 'none';
+                controlsLabel.style.display = 'none';
+                showToast("🧒 Switched to Kids Safe Mode (Settings Locked)");
+            } else {
+                kidsBanner.style.display = 'none';
+                controlsRow.style.display = 'flex';
+                controlsLabel.style.display = 'block';
+            }
+
+            // Private Mode: Reveal secret vault apps
+            if (mode === 'PRIVATE') {
+                privateBanner.style.display = 'flex';
+                if (vaultApp) vaultApp.style.display = 'flex';
+                showToast("🔐 Switched to Private Mode (Vault Unlocked)");
+            } else {
+                privateBanner.style.display = 'none';
+                if (vaultApp) vaultApp.style.display = 'none';
+            }
+
+            if (mode === 'NORMAL') {
+                showToast("📺 Switched to Normal Mode");
+            } else if (mode === 'SENIOR') {
+                showToast("👴 Switched to Senior Mode (XL High-Contrast)");
+            }
+
+            // Refresh app card visibility based on active mode
+            document.querySelectorAll('#favoritesRow .app-card, #allAppsRow .app-card').forEach(card => {
+                if (mode === 'KIDS') {
+                    card.style.display = card.dataset.kids === 'true' ? 'flex' : 'none';
+                } else if (mode === 'PRIVATE') {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = card.dataset.private === 'true' ? 'none' : 'flex';
+                }
+            });
+
             updateFocusVisual();
         }
 
-        // Default to Senior XL mode for easy accessibility!
-        document.body.classList.add('mode-senior');
+        // Quick Controls
+        function handleAction(action) {
+            playSound('select');
+            if (action === 'hdmi1') {
+                launchApp('HDMI 1 Input', '📺');
+            } else if (action === 'hdmi2') {
+                launchApp('HDMI 2 (Console)', '🎮');
+            } else if (action === 'toggle-lock') {
+                toggleCurrentAppLock();
+            } else if (action === 'settings') {
+                openPinModal('SETTINGS', 'Enter 4-digit Caregiver PIN for System Settings');
+            }
+        }
 
-        // PIN Dialog
-        function openPinModal() {
+        // PIN Dialog System
+        function openPinModal(purpose, promptText) {
             isPinOpen = true;
+            pinPurpose = purpose;
             currentPin = '';
             updatePinDots();
-            document.getElementById('pinStatusText').innerText = "Enter 4 digits to access Settings (Default: 1234)";
+
+            document.getElementById('pinModalTitle').innerText = 
+                purpose === 'APP_LOCK' ? "🔒 App Locked" :
+                purpose === 'EXIT_KIDS' ? "🧒 Exit Kids Safe" :
+                purpose === 'PRIVATE_MODE' ? "🔐 Private Vault" : "🔒 Caregiver PIN";
+
+            document.getElementById('pinStatusText').innerText = promptText || "Enter 4 digits (Default: 1234)";
             document.getElementById('pinStatusText').style.color = "var(--text-secondary)";
             document.getElementById('pinModal').classList.add('active');
         }
 
         function closePinModal() {
             isPinOpen = false;
+            pendingAppTarget = null;
+            pendingModeTarget = null;
             document.getElementById('pinModal').classList.remove('active');
             updateFocusVisual();
         }
@@ -1056,8 +1410,21 @@
         function verifyPin() {
             if (currentPin === CORRECT_PIN) {
                 playSound('select');
+                const purpose = pinPurpose;
+                const targetApp = pendingAppTarget;
+                const targetMode = pendingModeTarget;
                 closePinModal();
-                alert("PIN Verified! Access granted to Android TV System Settings.");
+
+                if (purpose === 'APP_LOCK' && targetApp) {
+                    showToast(`✅ Unlocked ${targetApp.appName}`);
+                    launchApp(targetApp.appName, targetApp.appIcon);
+                } else if (purpose === 'EXIT_KIDS' && targetMode) {
+                    applyMode(targetMode);
+                } else if (purpose === 'PRIVATE_MODE') {
+                    applyMode('PRIVATE');
+                } else if (purpose === 'SETTINGS') {
+                    showToast("✅ PIN Verified! Access granted to Android TV Settings");
+                }
             } else {
                 playSound('error');
                 document.getElementById('pinStatusText').innerText = "❌ Incorrect PIN! Try again.";
@@ -1067,7 +1434,7 @@
             }
         }
 
-        // Keyboard Listener (Arrow Keys, Enter, Esc, Numbers)
+        // Keyboard Listener (Arrow Keys, Enter, Esc, Numbers, L for Lock, M for Menu)
         window.addEventListener('keydown', (e) => {
             if (isPinOpen) {
                 if (e.key >= '0' && e.key <= '9') {
@@ -1116,15 +1483,27 @@
                 case 'M':
                     triggerMenu();
                     break;
-                case 's':
-                case 'S':
-                    toggleSizeMode();
+                case 'l':
+                case 'L':
+                    toggleCurrentAppLock();
+                    break;
+                case '1':
+                    selectMode('NORMAL');
+                    break;
+                case '2':
+                    selectMode('SENIOR');
+                    break;
+                case '3':
+                    selectMode('KIDS');
+                    break;
+                case '4':
+                    selectMode('PRIVATE');
                     break;
             }
         });
 
-        // Initialize First Focus
-        updateFocusVisual();
+        // Initialize to Senior Mode default
+        applyMode('SENIOR');
     </script>
 </body>
 </html>

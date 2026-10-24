@@ -8,8 +8,11 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +32,7 @@ import com.easytv.launcher.data.TileSizeMode
 import com.easytv.launcher.model.AppItem
 import com.easytv.launcher.ui.theme.CardBackground
 import com.easytv.launcher.ui.theme.CardBorder
+import com.easytv.launcher.ui.theme.DangerRed
 import com.easytv.launcher.ui.theme.HighVisibilityFocusGlow
 import com.easytv.launcher.ui.theme.TextPrimary
 
@@ -77,36 +81,50 @@ fun AppCard(
             defaultElevation = if (isFocused) 12.dp else 2.dp
         )
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // App Icon
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(app.icon)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = app.displayTitle,
-                modifier = Modifier.size(iconSize)
-            )
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (app.isLocked) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = "Locked App",
+                    tint = if (isFocused) HighVisibilityFocusGlow else DangerRed,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+                        .size(18.dp)
+                )
+            }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // App Icon
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(app.icon)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = app.displayTitle,
+                    modifier = Modifier.size(iconSize)
+                )
 
-            // App Label
-            Text(
-                text = app.displayTitle,
-                color = if (isFocused) HighVisibilityFocusGlow else TextPrimary,
-                fontSize = textSize,
-                fontWeight = if (isFocused) FontWeight.Bold else FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // App Label
+                Text(
+                    text = app.displayTitle,
+                    color = if (isFocused) HighVisibilityFocusGlow else TextPrimary,
+                    fontSize = textSize,
+                    fontWeight = if (isFocused) FontWeight.Bold else FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }

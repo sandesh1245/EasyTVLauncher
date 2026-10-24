@@ -3,13 +3,19 @@
 A lightweight, distraction-free, senior- & family-friendly launcher for Android TV, Google TV, and TV-boxes.
 
 ## Features
-- **Zero Ads & Zero Recommendations**: Fast and clean.
+- **Zero Ads & Zero Recommendations**: Fast, instant startup and clean interface.
+- **🔒 App Locker**: Lock any individual app with a 4-digit PIN to prevent unauthorized access.
+- **4 Dedicated Launcher Modes**:
+  - **📺 Normal Mode**: Clean, streamlined modern Android TV launcher with favorites and complete app grid.
+  - **👴 Senior Mode**: Jumbo XL tiles, bold high-contrast fonts, and enlarged icons for effortless readability from 10+ feet away.
+  - **🧒 Kids Safe Mode**: Kid-approved safe zone showing only child-friendly apps. System settings and HDMI inputs are locked, and exiting requires a parent PIN.
+  - **🔐 Private Mode**: PIN-protected private vault mode that reveals confidential and private apps.
 - **High-Visibility D-Pad Focus**: Glowing amber/yellow borders and scale zoom on active tiles.
-- **Senior / XL Tile Mode**: Extra-large tiles and bold typography for effortless readability from 10+ feet away.
 - **Favorites & App Hiding**: Pin most-used streaming apps to the top row; hide carrier bloatware.
-- **Caregiver PIN Lock**: Protect settings and app uninstallation behind a 4-digit PIN.
+- **Caregiver PIN Lock**: Protect settings and mode switching behind a secure 4-digit PIN.
 - **TV Hardware Controls**: Quick tiles for switching HDMI inputs, sleep timer, and system settings.
 - **Real-Time App Sync**: Instantly detects newly installed or removed apps via `BroadcastReceiver`.
+- **🖥️ Browser Simulator (`simulator.html`)**: Interactive TV remote & screen simulator to test all modes and App Locker directly in your browser.
 
 ---
 

@@ -13,6 +13,7 @@ data class AppItem(
     val icon: Drawable? = null,
     val isFavorite: Boolean = false,
     val isHidden: Boolean = false,
+    val isLocked: Boolean = false,
     val isLeanbackApp: Boolean = false
 ) {
     val displayTitle: String

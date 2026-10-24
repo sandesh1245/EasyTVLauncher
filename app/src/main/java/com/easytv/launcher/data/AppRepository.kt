@@ -13,7 +13,8 @@ class AppRepository(private val context: Context) {
 
     suspend fun getInstalledApps(
         favoritePackages: Set<String>,
-        hiddenPackages: Set<String>
+        hiddenPackages: Set<String>,
+        lockedPackages: Set<String> = emptySet()
     ): List<AppItem> = withContext(Dispatchers.IO) {
         val appMap = mutableMapOf<String, AppItem>()
 
@@ -29,6 +30,7 @@ class AppRepository(private val context: Context) {
             val icon = info.loadIcon(packageManager)
             val isFav = favoritePackages.contains(pkg)
             val isHidden = hiddenPackages.contains(pkg)
+            val isLocked = lockedPackages.contains(pkg)
             appMap[pkg] = AppItem(
                 packageName = pkg,
                 activityName = info.activityInfo.name,
@@ -36,6 +38,7 @@ class AppRepository(private val context: Context) {
                 icon = icon,
                 isFavorite = isFav,
                 isHidden = isHidden,
+                isLocked = isLocked,
                 isLeanbackApp = true
             )
         }
@@ -53,6 +56,7 @@ class AppRepository(private val context: Context) {
                 val icon = info.loadIcon(packageManager)
                 val isFav = favoritePackages.contains(pkg)
                 val isHidden = hiddenPackages.contains(pkg)
+                val isLocked = lockedPackages.contains(pkg)
                 appMap[pkg] = AppItem(
                     packageName = pkg,
                     activityName = info.activityInfo.name,
@@ -60,6 +64,7 @@ class AppRepository(private val context: Context) {
                     icon = icon,
                     isFavorite = isFav,
                     isHidden = isHidden,
+                    isLocked = isLocked,
                     isLeanbackApp = false
                 )
             }

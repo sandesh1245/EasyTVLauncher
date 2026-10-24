@@ -6,18 +6,37 @@ import android.provider.Settings
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.easytv.launcher.data.AppRepository
+import com.easytv.launcher.data.LauncherMode
 import com.easytv.launcher.data.LauncherPreferences
 import com.easytv.launcher.data.TileSizeMode
 import com.easytv.launcher.model.AppItem
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+private data class AppFilterData(
+    val favorites: Set<String>,
+    val hidden: Set<String>,
+    val locked: Set<String>,
+    val kids: Set<String>,
+    val privateApps: Set<String>
+)
+
+private data class DisplaySettingsData(
+    val mode: LauncherMode,
+    val tileSize: TileSizeMode,
+    val pin: String
+)
+
 data class HomeUiState(
     val favoriteApps: List<AppItem> = emptyList(),
     val otherApps: List<AppItem> = emptyList(),
-    val tileSize: TileSizeMode = TileSizeMode.SENIOR_XL,
-    val isPinProtected: Boolean = false,
-    val correctPin: String = "",
+    val currentMode: LauncherMode = LauncherMode.NORMAL,
+    val tileSize: TileSizeMode = TileSizeMode.STANDARD,
+    val isPinProtected: Boolean = true,
+    val correctPin: String = "1234",
+    val lockedPackages: Set<String> = emptySet(),
+    val kidsPackages: Set<String> = emptySet(),
+    val privatePackages: Set<String> = emptySet(),
     val isLoading: Boolean = true
 )
 
@@ -35,24 +54,60 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun observeLauncherData() {
         viewModelScope.launch {
-            combine(
+            val appFiltersFlow = combine(
                 preferences.favoritesFlow,
                 preferences.hiddenAppsFlow,
+                preferences.lockedAppsFlow,
+                preferences.kidsAppsFlow,
+                preferences.privateAppsFlow
+            ) { favorites, hidden, locked, kids, privateApps ->
+                AppFilterData(favorites, hidden, locked, kids, privateApps)
+            }
+
+            val displaySettingsFlow = combine(
+                preferences.launcherModeFlow,
                 preferences.tileSizeFlow,
                 preferences.pinCodeFlow
-            ) { favorites, hidden, tileSize, pin ->
-                val allApps = repository.getInstalledApps(favorites, hidden)
-                val visibleApps = allApps.filter { !it.isHidden }
+            ) { mode, tileSize, pin ->
+                DisplaySettingsData(mode, tileSize, pin)
+            }
 
-                val favList = visibleApps.filter { it.isFavorite }
-                val otherList = visibleApps.filter { !it.isFavorite }
+            combine(appFiltersFlow, displaySettingsFlow) { filters, settings ->
+                val allApps = repository.getInstalledApps(
+                    favoritePackages = filters.favorites,
+                    hiddenPackages = filters.hidden,
+                    lockedPackages = filters.locked
+                )
+
+                // Filter visible apps based on the active Mode
+                val modeFilteredApps = when (settings.mode) {
+                    LauncherMode.KIDS -> {
+                        // Kids Mode: Show ONLY parent-approved kids apps
+                        allApps.filter { filters.kids.contains(it.packageName) }
+                    }
+                    LauncherMode.PRIVATE -> {
+                        // Private Mode: Show all apps including private apps
+                        allApps.filter { !it.isHidden }
+                    }
+                    LauncherMode.NORMAL, LauncherMode.SENIOR -> {
+                        // Normal/Senior Mode: Hide private apps and hidden apps
+                        allApps.filter { !it.isHidden && !filters.privateApps.contains(it.packageName) }
+                    }
+                }
+
+                val favList = modeFilteredApps.filter { it.isFavorite }
+                val otherList = modeFilteredApps.filter { !it.isFavorite }
 
                 HomeUiState(
                     favoriteApps = favList,
                     otherApps = otherList,
-                    tileSize = tileSize,
-                    isPinProtected = !pin.isNullOrEmpty(),
-                    correctPin = pin ?: "",
+                    currentMode = settings.mode,
+                    tileSize = if (settings.mode == LauncherMode.SENIOR) TileSizeMode.SENIOR_XL else settings.tileSize,
+                    isPinProtected = true,
+                    correctPin = settings.pin,
+                    lockedPackages = filters.locked,
+                    kidsPackages = filters.kids,
+                    privatePackages = filters.privateApps,
                     isLoading = false
                 )
             }.collect { newState ->
@@ -65,6 +120,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.launchApp(app)
     }
 
+    fun setMode(mode: LauncherMode) {
+        viewModelScope.launch {
+            preferences.setLauncherMode(mode)
+        }
+    }
+
     fun toggleFavorite(app: AppItem) {
         viewModelScope.launch {
             preferences.toggleFavorite(app.packageName)
@@ -74,6 +135,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun toggleHideApp(app: AppItem) {
         viewModelScope.launch {
             preferences.toggleHideApp(app.packageName)
+        }
+    }
+
+    fun toggleAppLock(app: AppItem) {
+        viewModelScope.launch {
+            preferences.toggleAppLock(app.packageName)
+        }
+    }
+
+    fun toggleKidsApp(app: AppItem) {
+        viewModelScope.launch {
+            preferences.toggleKidsApp(app.packageName)
+        }
+    }
+
+    fun togglePrivateApp(app: AppItem) {
+        viewModelScope.launch {
+            preferences.togglePrivateApp(app.packageName)
         }
     }
 
