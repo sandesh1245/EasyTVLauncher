@@ -693,8 +693,8 @@
             background: linear-gradient(145deg, #1f2430, #141720);
             border: 3px solid #2d3546;
             border-radius: 36px;
-            padding: 24px 20px;
-            width: 250px;
+            padding: 22px 16px;
+            width: 270px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -706,28 +706,33 @@
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             font-weight: 700;
         }
 
         .remote-top-row {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            gap: 8px;
             width: 100%;
-            margin-bottom: 20px;
-            padding: 0 8px;
+            margin-bottom: 12px;
+            padding: 0 4px;
         }
 
         .remote-btn {
             background: #2a3142;
             border: 1px solid #3c475d;
             color: var(--text-primary);
-            border-radius: 12px;
-            padding: 10px 14px;
+            border-radius: 10px;
+            padding: 8px 12px;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .remote-btn:active {
@@ -741,12 +746,14 @@
             color: #fff;
             border-color: #ef4444;
             border-radius: 50%;
-            width: 42px;
-            height: 42px;
+            width: 38px;
+            height: 38px;
             padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
         }
 
         /* D-Pad Circle Controller */
@@ -1014,13 +1021,14 @@
                                 <span>PRIMARY WINDOW (50%)</span>
                                 <span style="color: var(--success-green); font-size: 0.75rem;" id="paneLeftAudio">🔊 ACTIVE</span>
                             </div>
-                            <div class="split-pane-content">
-                                <div class="split-pane-icon" id="leftAppIcon">▶️</div>
-                                <div class="split-pane-title" id="leftAppTitle">YouTube</div>
-                                <div class="split-pane-sub">Live 1080p Stream</div>
+                            <div class="split-pane-content" style="position: relative; overflow: hidden; padding: 0;">
+                                <video id="leftVideoPlayer" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" autoplay loop playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+                                <div style="position: absolute; bottom: 8px; left: 10px; background: rgba(0,0,0,0.65); padding: 2px 10px; border-radius: 6px; font-size: 0.75rem; color: #fff;">
+                                    <span id="leftAppIcon">⚽</span> <strong id="leftAppTitle">Sports Live</strong>
+                                </div>
                             </div>
                             <div class="split-pane-actions">
-                                <button class="split-btn" onclick="cycleSplitApp('left')">Change App</button>
+                                <button class="split-btn" onclick="cycleSplitApp('left')">📺 Change Stream</button>
                                 <button class="split-btn" onclick="launchSplitFull('left')">⛶ Fullscreen</button>
                             </div>
                         </div>
@@ -1028,16 +1036,17 @@
                         <!-- Right Window Pane (50%) -->
                         <div class="split-pane" id="paneRight" tabindex="0" onclick="focusSplitPane('right')">
                             <div class="split-pane-header">
-                                <span>SECONDARY WINDOW (50%)</span>
+                                <span>SECONDARY STREAM (50%)</span>
                                 <span style="color: var(--text-secondary); font-size: 0.75rem;" id="paneRightAudio">🔇 MUTED</span>
                             </div>
-                            <div class="split-pane-content">
-                                <div class="split-pane-icon" id="rightAppIcon">📡</div>
-                                <div class="split-pane-title" id="rightAppTitle">Live Channels</div>
-                                <div class="split-pane-sub">News & Sports Broadcast</div>
+                            <div class="split-pane-content" style="position: relative; overflow: hidden; padding: 0;">
+                                <video id="rightVideoPlayer" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" autoplay loop playsinline muted style="width: 100%; height: 100%; object-fit: cover;"></video>
+                                <div style="position: absolute; bottom: 8px; left: 10px; background: rgba(0,0,0,0.65); padding: 2px 10px; border-radius: 6px; font-size: 0.75rem; color: #fff;">
+                                    <span id="rightAppIcon">🌿</span> <strong id="rightAppTitle">Nature 4K</strong>
+                                </div>
                             </div>
                             <div class="split-pane-actions">
-                                <button class="split-btn" onclick="cycleSplitApp('right')">Change App</button>
+                                <button class="split-btn" onclick="cycleSplitApp('right')">📺 Change Stream</button>
                                 <button class="split-btn" onclick="launchSplitFull('right')">⛶ Fullscreen</button>
                             </div>
                         </div>
@@ -1094,10 +1103,12 @@
 
             <div class="remote-top-row">
                 <button class="remote-btn power" title="Power / Reset" onclick="resetFocus()">⏻</button>
-                <button class="remote-btn" title="Toggle Dual-View Split Screen" onclick="toggleSplitView()">🔲 Split</button>
-                <button class="remote-btn" title="Toggle Lock on Selected App" onclick="toggleCurrentAppLock()">🔒 Lock</button>
-                <button class="remote-btn" title="Cycle Launcher Mode" onclick="cycleNextMode()">Mode</button>
+                <button class="remote-btn" style="flex: 1;" title="Toggle Dual-View Split Screen" onclick="toggleSplitView()">🔲 Split Screen</button>
                 <button class="remote-btn" title="Mute/Unmute Audio" onclick="toggleAudio()" id="audioBtn">🔊</button>
+            </div>
+            <div class="remote-top-row" style="margin-bottom: 18px;">
+                <button class="remote-btn" style="flex: 1;" title="Toggle Lock on Selected App" onclick="toggleCurrentAppLock()">🔒 Lock App</button>
+                <button class="remote-btn" style="flex: 1;" title="Cycle Launcher Mode" onclick="cycleNextMode()">🎨 Mode ⟳</button>
             </div>
 
             <!-- D-Pad -->
@@ -1544,12 +1555,12 @@
         let activeSplitFocus = 'left';
         let splitAudioSide = 'LEFT';
         const splitPool = [
-            { name: 'YouTube', icon: '▶️', sub: 'Live 1080p Stream' },
-            { name: 'Live Channels', icon: '📡', sub: 'News & Sports Broadcast' },
-            { name: 'Netflix', icon: '🎬', sub: 'Movie Stream 4K' },
-            { name: 'Disney+', icon: '🏰', sub: 'Kids & Family Content' },
-            { name: 'Twitch', icon: '🎮', sub: 'Gaming Livestream' },
-            { name: 'HDMI 1', icon: '📺', sub: 'Console / Cable Box' }
+            { name: 'Sports Live', icon: '⚽', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
+            { name: 'Nature 4K', icon: '🌿', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4' },
+            { name: 'NASA Space Live', icon: '🚀', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
+            { name: 'Global News Live', icon: '🌍', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4' },
+            { name: 'Lo-Fi Beats', icon: '🎵', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4' },
+            { name: 'Gaming Live', icon: '🎮', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4' }
         ];
         let leftAppIdx = 0;
         let rightAppIdx = 1;
@@ -1568,7 +1579,7 @@
             document.getElementById('splitOverlay').classList.add('active');
             updateSplitViewDisplay();
             focusSplitPane('left');
-            showToast("🔲 Dual-View Split Screen Opened (50 / 50)");
+            showToast("🔲 Dual-Stream Live Player Active (50 / 50)");
         }
 
         function closeSplitView() {
@@ -1585,14 +1596,14 @@
             rightAppIdx = temp;
             splitAudioSide = splitAudioSide === 'LEFT' ? 'RIGHT' : 'LEFT';
             updateSplitViewDisplay();
-            showToast("⇄ Swapped Left and Right windows");
+            showToast("⇄ Swapped Left and Right video streams");
         }
 
         function toggleSplitAudio() {
             playSound('select');
             splitAudioSide = splitAudioSide === 'LEFT' ? 'RIGHT' : 'LEFT';
             updateSplitViewDisplay();
-            showToast(`🔊 Audio Switched to ${splitAudioSide === 'LEFT' ? 'Left' : 'Right'} Pane`);
+            showToast(`🔊 Audio Routed to ${splitAudioSide === 'LEFT' ? 'Left' : 'Right'} Stream`);
         }
 
         function focusSplitPane(side) {
@@ -1612,6 +1623,8 @@
                 if (rightAppIdx === leftAppIdx) rightAppIdx = (rightAppIdx + 1) % splitPool.length;
             }
             updateSplitViewDisplay();
+            const chosen = side === 'left' ? splitPool[leftAppIdx] : splitPool[rightAppIdx];
+            showToast(`📺 Switched to ${chosen.name}`);
         }
 
         function launchSplitFull(side) {
@@ -1624,11 +1637,25 @@
         function updateSplitViewDisplay() {
             const left = splitPool[leftAppIdx];
             const right = splitPool[rightAppIdx];
+
             document.getElementById('leftAppTitle').innerText = left.name;
             document.getElementById('leftAppIcon').innerText = left.icon;
+            const leftVid = document.getElementById('leftVideoPlayer');
+            if (leftVid && !leftVid.src.includes(left.url)) {
+                leftVid.src = left.url;
+                leftVid.play().catch(e => {});
+            }
 
             document.getElementById('rightAppTitle').innerText = right.name;
             document.getElementById('rightAppIcon').innerText = right.icon;
+            const rightVid = document.getElementById('rightVideoPlayer');
+            if (rightVid && !rightVid.src.includes(right.url)) {
+                rightVid.src = right.url;
+                rightVid.play().catch(e => {});
+            }
+
+            if (leftVid) leftVid.muted = splitAudioSide !== 'LEFT';
+            if (rightVid) rightVid.muted = splitAudioSide !== 'RIGHT';
 
             document.getElementById('splitAudioBadge').innerText = splitAudioSide === 'LEFT' ? 'Left Audio 🔊' : 'Right Audio 🔊';
             document.getElementById('paneLeftAudio').innerText = splitAudioSide === 'LEFT' ? '🔊 ACTIVE' : '🔇 MUTED';

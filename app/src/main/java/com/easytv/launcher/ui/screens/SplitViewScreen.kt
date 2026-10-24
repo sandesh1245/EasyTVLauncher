@@ -1,5 +1,12 @@
 package com.easytv.launcher.ui.screens
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Color as AndroidColor
+import android.view.ViewGroup
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -21,10 +28,62 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import androidx.compose.ui.viewinterop.AndroidView
 import com.easytv.launcher.model.AppItem
 import com.easytv.launcher.ui.theme.*
+
+data class LiveStreamChannel(
+    val id: String,
+    val title: String,
+    val category: String,
+    val iconEmoji: String,
+    val videoUrl: String
+)
+
+val DEFAULT_LIVE_CHANNELS = listOf(
+    LiveStreamChannel(
+        id = "sports",
+        title = "Sports & Action Live",
+        category = "Sports",
+        iconEmoji = "⚽",
+        videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    ),
+    LiveStreamChannel(
+        id = "nature",
+        title = "Nature & Wildlife 4K",
+        category = "Documentary",
+        iconEmoji = "🌿",
+        videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+    ),
+    LiveStreamChannel(
+        id = "space",
+        title = "NASA & Space Cam Live",
+        category = "Science",
+        iconEmoji = "🚀",
+        videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+    ),
+    LiveStreamChannel(
+        id = "news",
+        title = "Global News & Finance",
+        category = "News",
+        iconEmoji = "🌍",
+        videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+    ),
+    LiveStreamChannel(
+        id = "lofi",
+        title = "Lo-Fi Beats & Music",
+        category = "Music",
+        iconEmoji = "🎵",
+        videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4"
+    ),
+    LiveStreamChannel(
+        id = "gaming",
+        title = "Gaming & Esports Live",
+        category = "Gaming",
+        iconEmoji = "🎮",
+        videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+    )
+)
 
 @Composable
 fun SplitViewScreen(
@@ -35,11 +94,12 @@ fun SplitViewScreen(
 ) {
     val context = LocalContext.current
 
-    // State for Left Pane & Right Pane
-    var leftApp by remember { mutableStateOf(installedApps.firstOrNull()) }
-    var rightApp by remember { mutableStateOf(installedApps.getOrNull(1) ?: installedApps.firstOrNull()) }
+    // State for Left Stream & Right Stream
+    var leftChannel by remember { mutableStateOf(DEFAULT_LIVE_CHANNELS[0]) }
+    var rightChannel by remember { mutableStateOf(DEFAULT_LIVE_CHANNELS[1]) }
     var activeAudioSide by remember { mutableStateOf("LEFT") } // "LEFT" or "RIGHT"
-    var showAppPickerForPane by remember { mutableStateOf<String?>(null) } // "LEFT" or "RIGHT" or null
+    var fullscreenPane by remember { mutableStateOf<String?>(null) } // "LEFT" or "RIGHT" or null (50/50)
+    var showChannelPickerForPane by remember { mutableStateOf<String?>(null) } // "LEFT" or "RIGHT" or null
 
     Box(
         modifier = modifier
@@ -49,13 +109,13 @@ fun SplitViewScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(14.dp)
         ) {
-            // Header Bar
+            // Header Top Bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp),
+                    .padding(bottom = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -64,7 +124,7 @@ fun SplitViewScreen(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
-                        text = "🔲 Dual-View Split Screen",
+                        text = "🔲 Real Dual-Stream Player",
                         color = PrimaryAccent,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
@@ -75,34 +135,54 @@ fun SplitViewScreen(
                         border = BorderStroke(1.dp, Color(0xFF334155))
                     ) {
                         Text(
-                            text = "Audio: ${if (activeAudioSide == "LEFT") "Left Pane 🔊" else "Right Pane 🔊"}",
+                            text = "Audio: ${if (activeAudioSide == "LEFT") "Left Stream 🔊" else "Right Stream 🔊"}",
                             color = HighVisibilityFocusGlow,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                         )
                     }
+                    if (fullscreenPane != null) {
+                        Surface(
+                            color = Color(0xFF0F766E),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = "FULLSCREEN MODE",
+                                color = Color.White,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
                 }
 
-                // Control action buttons
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                // Header Control Actions
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SplitControlButton(
-                        title = "⇄ Swap",
+                        title = "⇄ Swap Streams",
                         onClick = {
-                            val temp = leftApp
-                            leftApp = rightApp
-                            rightApp = temp
+                            val temp = leftChannel
+                            leftChannel = rightChannel
+                            rightChannel = temp
                             activeAudioSide = if (activeAudioSide == "LEFT") "RIGHT" else "LEFT"
-                            Toast.makeText(context, "Swapped Left and Right windows", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Swapped Left and Right streams", Toast.LENGTH_SHORT).show()
                         }
                     )
                     SplitControlButton(
-                        title = "🔊 Audio",
+                        title = "🔊 Switch Audio",
                         onClick = {
                             activeAudioSide = if (activeAudioSide == "LEFT") "RIGHT" else "LEFT"
-                            Toast.makeText(context, "Switched audio to ${if (activeAudioSide == "LEFT") "Left" else "Right"}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Audio routed to ${if (activeAudioSide == "LEFT") "Left Stream" else "Right Stream"}", Toast.LENGTH_SHORT).show()
                         }
                     )
+                    if (fullscreenPane != null) {
+                        SplitControlButton(
+                            title = "⛶ 50/50 Split",
+                            onClick = { fullscreenPane = null }
+                        )
+                    }
                     SplitControlButton(
                         title = "✕ Exit",
                         onClick = onClose,
@@ -111,102 +191,133 @@ fun SplitViewScreen(
                 }
             }
 
-            // Split 50 / 50 Dual Panes
+            // Dual Panes Container (50/50 or Fullscreen)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                // Left Window Pane (50%)
-                SplitPaneCard(
-                    title = "Primary Window",
-                    app = leftApp,
-                    hasAudio = activeAudioSide == "LEFT",
-                    onSelectApp = { showAppPickerForPane = "LEFT" },
-                    onLaunchFull = { leftApp?.let(onLaunchApp) },
-                    modifier = Modifier.weight(1f)
-                )
+                // Left Window Stream
+                if (fullscreenPane == null || fullscreenPane == "LEFT") {
+                    RealStreamPane(
+                        title = "Primary Stream",
+                        channel = leftChannel,
+                        hasAudio = activeAudioSide == "LEFT",
+                        isFullscreen = fullscreenPane == "LEFT",
+                        onChangeChannel = { showChannelPickerForPane = "LEFT" },
+                        onToggleFullscreen = {
+                            fullscreenPane = if (fullscreenPane == "LEFT") null else "LEFT"
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
 
-                // Right Window Pane (50%)
-                SplitPaneCard(
-                    title = "Secondary Window",
-                    app = rightApp,
-                    hasAudio = activeAudioSide == "RIGHT",
-                    onSelectApp = { showAppPickerForPane = "RIGHT" },
-                    onLaunchFull = { rightApp?.let(onLaunchApp) },
-                    modifier = Modifier.weight(1f)
-                )
+                // Right Window Stream
+                if (fullscreenPane == null || fullscreenPane == "RIGHT") {
+                    RealStreamPane(
+                        title = "Secondary Stream",
+                        channel = rightChannel,
+                        hasAudio = activeAudioSide == "RIGHT",
+                        isFullscreen = fullscreenPane == "RIGHT",
+                        onChangeChannel = { showChannelPickerForPane = "RIGHT" },
+                        onToggleFullscreen = {
+                            fullscreenPane = if (fullscreenPane == "RIGHT") null else "RIGHT"
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
 
-        // App Picker Dialog
-        showAppPickerForPane?.let { pane ->
+        // Live Channel Selection Dialog
+        showChannelPickerForPane?.let { pane ->
             AlertDialog(
-                onDismissRequest = { showAppPickerForPane = null },
-                title = { Text(text = "Select App for ${if (pane == "LEFT") "Left Window" else "Right Window"}", color = TextPrimary) },
+                onDismissRequest = { showChannelPickerForPane = null },
+                title = {
+                    Text(
+                        text = "Select Stream for ${if (pane == "LEFT") "Left Window" else "Right Window"}",
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 text = {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(300.dp),
+                            .height(320.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(installedApps) { app ->
+                        items(DEFAULT_LIVE_CHANNELS) { channel ->
                             Button(
                                 onClick = {
-                                    if (pane == "LEFT") leftApp = app else rightApp = app
-                                    showAppPickerForPane = null
+                                    if (pane == "LEFT") leftChannel = channel else rightChannel = channel
+                                    showChannelPickerForPane = null
                                 },
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(containerColor = CardBackground)
+                                colors = ButtonDefaults.buttonColors(containerColor = CardBackground),
+                                shape = RoundedCornerShape(10.dp)
                             ) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    app.icon?.let { icon ->
-                                        AsyncImage(
-                                            model = ImageRequest.Builder(LocalContext.current)
-                                                .data(icon)
-                                                .crossfade(true)
-                                                .build(),
-                                            contentDescription = app.displayTitle,
-                                            modifier = Modifier.size(28.dp)
+                                    Text(text = channel.iconEmoji, fontSize = 24.sp)
+                                    Column {
+                                        Text(
+                                            text = channel.title,
+                                            color = TextPrimary,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 15.sp
+                                        )
+                                        Text(
+                                            text = "${channel.category} • Live Stream",
+                                            color = TextSecondary,
+                                            fontSize = 12.sp
                                         )
                                     }
-                                    Text(
-                                        text = app.displayTitle,
-                                        color = TextPrimary,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
                                 }
                             }
                         }
                     }
                 },
                 confirmButton = {
-                    TextButton(onClick = { showAppPickerForPane = null }) {
+                    TextButton(onClick = { showChannelPickerForPane = null }) {
                         Text("Cancel", color = DangerRed)
                     }
-                }
+                },
+                containerColor = Color(0xFF1E293B)
             )
         }
     }
 }
 
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun SplitPaneCard(
+fun RealStreamPane(
     title: String,
-    app: AppItem?,
+    channel: LiveStreamChannel,
     hasAudio: Boolean,
-    onSelectApp: () -> Unit,
-    onLaunchFull: () -> Unit,
+    isFullscreen: Boolean,
+    onChangeChannel: () -> Unit,
+    onToggleFullscreen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+    var webViewRef by remember { mutableStateOf<WebView?>(null) }
+
+    // Update audio mute/unmute state in WebView when hasAudio changes
+    LaunchedEffect(hasAudio, webViewRef) {
+        val js = if (hasAudio) {
+            "var v = document.getElementById('videoPlayer'); if (v) { v.muted = false; v.play(); }"
+        } else {
+            "var v = document.getElementById('videoPlayer'); if (v) { v.muted = true; }"
+        }
+        webViewRef?.evaluateJavascript(js, null)
+    }
 
     Surface(
         modifier = modifier
@@ -226,21 +337,26 @@ fun SplitPaneCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(12.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Pane Header
+            // Stream Pane Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = title,
-                    color = TextSecondary,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = "${channel.iconEmoji} ${channel.title}",
+                        color = TextPrimary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
                 if (hasAudio) {
                     Text(
                         text = "🔊 AUDIO ACTIVE",
@@ -257,73 +373,94 @@ fun SplitPaneCard(
                 }
             }
 
-            // Central Simulated App Canvas
+            // Live Video Playback Area using Hardware Accelerated WebView
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(vertical = 12.dp)
-                    .background(Color(0xFF0F172A), RoundedCornerShape(12.dp)),
+                    .padding(vertical = 8.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
-                if (app != null) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        app.icon?.let { icon ->
-                            AsyncImage(
-                                model = ImageRequest.Builder(context)
-                                    .data(icon)
-                                    .crossfade(true)
-                                    .build(),
-                                contentDescription = app.displayTitle,
-                                modifier = Modifier.size(64.dp)
+                AndroidView(
+                    factory = { ctx ->
+                        WebView(ctx).apply {
+                            layoutParams = ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT
                             )
+                            settings.javaScriptEnabled = true
+                            settings.mediaPlaybackRequiresUserGesture = false
+                            settings.domStorageEnabled = true
+                            setBackgroundColor(AndroidColor.BLACK)
+                            webChromeClient = WebChromeClient()
+                            webViewClient = WebViewClient()
+                            
+                            val html = buildVideoHtml(channel.videoUrl, hasAudio)
+                            loadDataWithBaseURL("https://commondatastorage.googleapis.com", html, "text/html", "UTF-8", null)
+                            webViewRef = this
                         }
-                        Text(
-                            text = app.displayTitle,
-                            color = TextPrimary,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Running in Split Window (50%)",
-                            color = TextSecondary,
-                            fontSize = 12.sp
-                        )
-                    }
-                } else {
-                    Text(
-                        text = "Select an Application",
-                        color = TextSecondary,
-                        fontSize = 14.sp
-                    )
-                }
+                    },
+                    update = { view ->
+                        webViewRef = view
+                        val html = buildVideoHtml(channel.videoUrl, hasAudio)
+                        view.loadDataWithBaseURL("https://commondatastorage.googleapis.com", html, "text/html", "UTF-8", null)
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
             }
 
-            // Pane Bottom Action Controls
+            // Bottom Stream Action Controls
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = onSelectApp,
+                    onClick = onChangeChannel,
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF334155))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF334155)),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Change App", fontSize = 12.sp)
+                    Text("📺 Change Stream", fontSize = 12.sp)
                 }
                 Button(
-                    onClick = onLaunchFull,
+                    onClick = onToggleFullscreen,
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryAccent)
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryAccent),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("⛶ Fullscreen", fontSize = 12.sp)
+                    Text(if (isFullscreen) "⛶ 50/50 Split" else "⛶ Fullscreen", fontSize = 12.sp)
                 }
             }
         }
     }
+}
+
+private fun buildVideoHtml(videoUrl: String, hasAudio: Boolean): String {
+    val mutedAttr = if (hasAudio) "" else "muted"
+    return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; background: #000; }
+                html, body { width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+                video { width: 100%; height: 100%; object-fit: contain; }
+            </style>
+        </head>
+        <body>
+            <video id="videoPlayer" src="$videoUrl" autoplay loop playsinline $mutedAttr></video>
+            <script>
+                var v = document.getElementById('videoPlayer');
+                if (v) {
+                    v.play().catch(function(e) {});
+                }
+            </script>
+        </body>
+        </html>
+    """.trimIndent()
 }
 
 @Composable
