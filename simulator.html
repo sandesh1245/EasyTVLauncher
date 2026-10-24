@@ -548,6 +548,176 @@
             border-color: var(--focus-glow);
         }
 
+        .split-btn.highlight {
+            background: #0284c7;
+            border-color: #38bdf8;
+            color: #fff;
+        }
+
+        /* Mobile Browser & Google Search Simulation in Split View */
+        .mobile-browser-wrap {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            color: #202124;
+            border-radius: 10px;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            text-align: left;
+        }
+
+        .mobile-browser-topbar {
+            background: #f1f3f4;
+            border-bottom: 1px solid #dadce0;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: #5f6368;
+            gap: 6px;
+        }
+
+        .mobile-url-bar {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #dadce0;
+            border-radius: 16px;
+            padding: 2px 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            color: #202124;
+            font-weight: 500;
+        }
+
+        .mobile-mode-badge {
+            background: #e0f2fe;
+            color: #0369a1;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            border: 1px solid #bae6fd;
+            white-space: nowrap;
+        }
+
+        .google-page-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 14px;
+            background: #fff;
+            overflow-y: auto;
+        }
+
+        .google-logo-row {
+            margin-bottom: 10px;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 1px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            font-family: Arial, sans-serif;
+        }
+
+        .g-blue { color: #4285f4; }
+        .g-red { color: #ea4335; }
+        .g-yellow { color: #fbbc05; }
+        .g-green { color: #34a853; }
+
+        .google-search-box {
+            width: 100%;
+            max-width: 360px;
+            background: #fff;
+            border: 1px solid #dfe1e5;
+            border-radius: 20px;
+            box-shadow: 0 1px 4px rgba(32,33,36,0.15);
+            display: flex;
+            align-items: center;
+            padding: 5px 12px;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .google-search-box:focus-within {
+            box-shadow: 0 1px 6px rgba(66,133,244,0.4);
+            border-color: #4285f4;
+        }
+
+        .google-search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 0.8rem;
+            color: #202124;
+            background: transparent;
+        }
+
+        .google-chips-row {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+            max-width: 360px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+        }
+        .google-chips-row::-webkit-scrollbar { display: none; }
+
+        .google-chip {
+            background: #f1f3f4;
+            border: 1px solid #dadce0;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.68rem;
+            color: #3c4043;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.1s;
+        }
+
+        .google-chip:hover {
+            background: #e2e8f0;
+        }
+
+        .google-results-card {
+            width: 100%;
+            max-width: 360px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 10px;
+            text-align: left;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .google-results-card.show {
+            display: block;
+        }
+
+        .google-results-title {
+            color: #1a0dab;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            cursor: pointer;
+        }
+
+        .google-results-snippet {
+            color: #475569;
+            font-size: 0.7rem;
+            line-height: 1.3;
+        }
+
         .split-btn.danger {
             background: #7f1d1d;
             border-color: #ef4444;
@@ -1008,6 +1178,7 @@
                             <span class="split-audio-badge" id="splitAudioBadge">Left Audio 🔊</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
+                            <button class="split-btn highlight" id="btnGoogleMobile" onclick="toggleGoogleMobile()">🌐 Google Mobile</button>
                             <button class="split-btn" onclick="swapSplitPanes()">⇄ Swap Panes</button>
                             <button class="split-btn" onclick="toggleSplitAudio()">🔊 Switch Audio</button>
                             <button class="split-btn danger" onclick="closeSplitView()">✕ Exit Split View</button>
@@ -1018,17 +1189,49 @@
                         <!-- Left Window Pane (50%) -->
                         <div class="split-pane focused" id="paneLeft" tabindex="0" onclick="focusSplitPane('left')">
                             <div class="split-pane-header">
-                                <span>PRIMARY WINDOW (50%)</span>
+                                <span id="paneLeftHeaderTitle">PRIMARY WINDOW (50%)</span>
                                 <span style="color: var(--success-green); font-size: 0.75rem;" id="paneLeftAudio">🔊 ACTIVE</span>
                             </div>
                             <div class="split-pane-content" style="position: relative; overflow: hidden; padding: 0;">
                                 <video id="leftVideoPlayer" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" autoplay loop playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
-                                <div style="position: absolute; bottom: 8px; left: 10px; background: rgba(0,0,0,0.65); padding: 2px 10px; border-radius: 6px; font-size: 0.75rem; color: #fff;">
+                                <div id="leftVideoOverlay" style="position: absolute; bottom: 8px; left: 10px; background: rgba(0,0,0,0.65); padding: 2px 10px; border-radius: 6px; font-size: 0.75rem; color: #fff;">
                                     <span id="leftAppIcon">⚽</span> <strong id="leftAppTitle">Sports Live</strong>
+                                </div>
+
+                                <!-- Mobile Browser Mode (Google Search) for Left Pane -->
+                                <div class="mobile-browser-wrap" id="leftBrowserWrap" style="display: none;">
+                                    <div class="mobile-browser-topbar">
+                                        <div class="mobile-url-bar">
+                                            <span>🔒</span>
+                                            <span>google.com</span>
+                                        </div>
+                                        <span class="mobile-mode-badge">📱 Mobile Mode (Pixel 7)</span>
+                                        <button style="background: none; border: none; cursor: pointer; font-size: 0.8rem;" onclick="refreshGoogleSearch('left')">⟳</button>
+                                    </div>
+                                    <div class="google-page-content">
+                                        <div class="google-logo-row">
+                                            <span class="g-blue">G</span><span class="g-red">o</span><span class="g-yellow">o</span><span class="g-blue">g</span><span class="g-green">l</span><span class="g-red">e</span>
+                                        </div>
+                                        <div class="google-search-box">
+                                            <span>🔍</span>
+                                            <input type="text" id="leftGoogleInput" placeholder="Search Google or type URL..." onkeydown="handleGoogleInput(event, 'left')">
+                                            <span style="font-size: 0.8rem; cursor: pointer;" onclick="execGoogleSearch('left')">➔</span>
+                                        </div>
+                                        <div class="google-chips-row">
+                                            <span class="google-chip" onclick="quickSearch('left', 'World Cup live scores')">⚽ Scores</span>
+                                            <span class="google-chip" onclick="quickSearch('left', 'Weather forecast today')">🌦️ Weather</span>
+                                            <span class="google-chip" onclick="quickSearch('left', 'Tech headlines today')">📰 Tech News</span>
+                                            <span class="google-chip" onclick="quickSearch('left', 'Best 4K Movies')">🎬 Movies</span>
+                                        </div>
+                                        <div class="google-results-card" id="leftSearchResults">
+                                            <div class="google-results-title" id="leftResultsTitle">Google Search Results</div>
+                                            <div class="google-results-snippet" id="leftResultsSnippet">Results will appear here.</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="split-pane-actions">
-                                <button class="split-btn" onclick="cycleSplitApp('left')">📺 Change Stream</button>
+                                <button class="split-btn" onclick="cycleSplitApp('left')">📺 Change Mode / Stream</button>
                                 <button class="split-btn" onclick="launchSplitFull('left')">⛶ Fullscreen</button>
                             </div>
                         </div>
@@ -1036,17 +1239,49 @@
                         <!-- Right Window Pane (50%) -->
                         <div class="split-pane" id="paneRight" tabindex="0" onclick="focusSplitPane('right')">
                             <div class="split-pane-header">
-                                <span>SECONDARY STREAM (50%)</span>
+                                <span id="paneRightHeaderTitle">SECONDARY WINDOW (50%)</span>
                                 <span style="color: var(--text-secondary); font-size: 0.75rem;" id="paneRightAudio">🔇 MUTED</span>
                             </div>
                             <div class="split-pane-content" style="position: relative; overflow: hidden; padding: 0;">
                                 <video id="rightVideoPlayer" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" autoplay loop playsinline muted style="width: 100%; height: 100%; object-fit: cover;"></video>
-                                <div style="position: absolute; bottom: 8px; left: 10px; background: rgba(0,0,0,0.65); padding: 2px 10px; border-radius: 6px; font-size: 0.75rem; color: #fff;">
+                                <div id="rightVideoOverlay" style="position: absolute; bottom: 8px; left: 10px; background: rgba(0,0,0,0.65); padding: 2px 10px; border-radius: 6px; font-size: 0.75rem; color: #fff;">
                                     <span id="rightAppIcon">🌿</span> <strong id="rightAppTitle">Nature 4K</strong>
+                                </div>
+
+                                <!-- Mobile Browser Mode (Google Search) for Right Pane -->
+                                <div class="mobile-browser-wrap" id="rightBrowserWrap" style="display: none;">
+                                    <div class="mobile-browser-topbar">
+                                        <div class="mobile-url-bar">
+                                            <span>🔒</span>
+                                            <span>google.com</span>
+                                        </div>
+                                        <span class="mobile-mode-badge">📱 Mobile Mode (Pixel 7)</span>
+                                        <button style="background: none; border: none; cursor: pointer; font-size: 0.8rem;" onclick="refreshGoogleSearch('right')">⟳</button>
+                                    </div>
+                                    <div class="google-page-content">
+                                        <div class="google-logo-row">
+                                            <span class="g-blue">G</span><span class="g-red">o</span><span class="g-yellow">o</span><span class="g-blue">g</span><span class="g-green">l</span><span class="g-red">e</span>
+                                        </div>
+                                        <div class="google-search-box">
+                                            <span>🔍</span>
+                                            <input type="text" id="rightGoogleInput" placeholder="Search Google or type URL..." onkeydown="handleGoogleInput(event, 'right')">
+                                            <span style="font-size: 0.8rem; cursor: pointer;" onclick="execGoogleSearch('right')">➔</span>
+                                        </div>
+                                        <div class="google-chips-row">
+                                            <span class="google-chip" onclick="quickSearch('right', 'World Cup live scores')">⚽ Scores</span>
+                                            <span class="google-chip" onclick="quickSearch('right', 'Weather forecast today')">🌦️ Weather</span>
+                                            <span class="google-chip" onclick="quickSearch('right', 'Tech headlines today')">📰 Tech News</span>
+                                            <span class="google-chip" onclick="quickSearch('right', 'Best 4K Movies')">🎬 Movies</span>
+                                        </div>
+                                        <div class="google-results-card" id="rightSearchResults">
+                                            <div class="google-results-title" id="rightResultsTitle">Google Search Results</div>
+                                            <div class="google-results-snippet" id="rightResultsSnippet">Results will appear here.</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="split-pane-actions">
-                                <button class="split-btn" onclick="cycleSplitApp('right')">📺 Change Stream</button>
+                                <button class="split-btn" onclick="cycleSplitApp('right')">📺 Change Mode / Stream</button>
                                 <button class="split-btn" onclick="launchSplitFull('right')">⛶ Fullscreen</button>
                             </div>
                         </div>
@@ -1555,15 +1790,16 @@
         let activeSplitFocus = 'left';
         let splitAudioSide = 'LEFT';
         const splitPool = [
-            { name: 'Sports Live', icon: '⚽', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
-            { name: 'Nature 4K', icon: '🌿', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4' },
-            { name: 'NASA Space Live', icon: '🚀', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
-            { name: 'Global News Live', icon: '🌍', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4' },
-            { name: 'Lo-Fi Beats', icon: '🎵', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4' },
-            { name: 'Gaming Live', icon: '🎮', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4' }
+            { name: 'Google Search (Mobile)', icon: '🌐', type: 'web', url: 'https://www.google.com' },
+            { name: 'Sports Live', icon: '⚽', type: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
+            { name: 'Nature 4K', icon: '🌿', type: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4' },
+            { name: 'NASA Space Live', icon: '🚀', type: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
+            { name: 'Global News Live', icon: '🌍', type: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4' },
+            { name: 'Lo-Fi Beats', icon: '🎵', type: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4' },
+            { name: 'Gaming Live', icon: '🎮', type: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4' }
         ];
-        let leftAppIdx = 0;
-        let rightAppIdx = 1;
+        let leftAppIdx = 1; // Sports Live (Video)
+        let rightAppIdx = 0; // Google Search in Mobile Mode (Web)
 
         function toggleSplitView() {
             if (isSplitViewOpen) {
@@ -1579,7 +1815,7 @@
             document.getElementById('splitOverlay').classList.add('active');
             updateSplitViewDisplay();
             focusSplitPane('left');
-            showToast("🔲 Dual-Stream Live Player Active (50 / 50)");
+            showToast("🔲 Split View Active: Video on Left, Google Mobile on Right");
         }
 
         function closeSplitView() {
@@ -1596,14 +1832,26 @@
             rightAppIdx = temp;
             splitAudioSide = splitAudioSide === 'LEFT' ? 'RIGHT' : 'LEFT';
             updateSplitViewDisplay();
-            showToast("⇄ Swapped Left and Right video streams");
+            showToast("⇄ Swapped Left and Right windows");
+        }
+
+        function toggleGoogleMobile() {
+            playSound('select');
+            if (splitPool[rightAppIdx].type === 'web') {
+                rightAppIdx = 2; // Switch to Nature 4K
+                showToast("📺 Right Window: Switched to Nature 4K");
+            } else {
+                rightAppIdx = 0; // Switch to Google Search Mobile
+                showToast("🌐 Right Window: Loaded Google Search (Mobile View)");
+            }
+            updateSplitViewDisplay();
         }
 
         function toggleSplitAudio() {
             playSound('select');
             splitAudioSide = splitAudioSide === 'LEFT' ? 'RIGHT' : 'LEFT';
             updateSplitViewDisplay();
-            showToast(`🔊 Audio Routed to ${splitAudioSide === 'LEFT' ? 'Left' : 'Right'} Stream`);
+            showToast(`🔊 Audio Routed to ${splitAudioSide === 'LEFT' ? 'Left' : 'Right'} Window`);
         }
 
         function focusSplitPane(side) {
@@ -1638,30 +1886,117 @@
             const left = splitPool[leftAppIdx];
             const right = splitPool[rightAppIdx];
 
-            document.getElementById('leftAppTitle').innerText = left.name;
-            document.getElementById('leftAppIcon').innerText = left.icon;
+            // Left Pane Configuration
             const leftVid = document.getElementById('leftVideoPlayer');
-            if (leftVid && !leftVid.src.includes(left.url)) {
-                leftVid.src = left.url;
-                leftVid.play().catch(e => {});
+            const leftVidOverlay = document.getElementById('leftVideoOverlay');
+            const leftBrowser = document.getElementById('leftBrowserWrap');
+            const leftHeaderTitle = document.getElementById('paneLeftHeaderTitle');
+
+            if (left.type === 'web') {
+                if (leftVid) { leftVid.style.display = 'none'; leftVid.pause(); }
+                if (leftVidOverlay) leftVidOverlay.style.display = 'none';
+                if (leftBrowser) leftBrowser.style.display = 'flex';
+                if (leftHeaderTitle) leftHeaderTitle.innerText = "🌐 GOOGLE SEARCH (MOBILE WEB)";
+            } else {
+                if (leftBrowser) leftBrowser.style.display = 'none';
+                if (leftVid) {
+                    leftVid.style.display = 'block';
+                    if (!leftVid.src.includes(left.url)) {
+                        leftVid.src = left.url;
+                    }
+                    leftVid.play().catch(e => {});
+                }
+                if (leftVidOverlay) leftVidOverlay.style.display = 'block';
+                document.getElementById('leftAppTitle').innerText = left.name;
+                document.getElementById('leftAppIcon').innerText = left.icon;
+                if (leftHeaderTitle) leftHeaderTitle.innerText = "PRIMARY VIDEO STREAM (50%)";
             }
 
-            document.getElementById('rightAppTitle').innerText = right.name;
-            document.getElementById('rightAppIcon').innerText = right.icon;
+            // Right Pane Configuration
             const rightVid = document.getElementById('rightVideoPlayer');
-            if (rightVid && !rightVid.src.includes(right.url)) {
-                rightVid.src = right.url;
-                rightVid.play().catch(e => {});
+            const rightVidOverlay = document.getElementById('rightVideoOverlay');
+            const rightBrowser = document.getElementById('rightBrowserWrap');
+            const rightHeaderTitle = document.getElementById('paneRightHeaderTitle');
+
+            if (right.type === 'web') {
+                if (rightVid) { rightVid.style.display = 'none'; rightVid.pause(); }
+                if (rightVidOverlay) rightVidOverlay.style.display = 'none';
+                if (rightBrowser) rightBrowser.style.display = 'flex';
+                if (rightHeaderTitle) rightHeaderTitle.innerText = "🌐 GOOGLE SEARCH (MOBILE WEB)";
+            } else {
+                if (rightBrowser) rightBrowser.style.display = 'none';
+                if (rightVid) {
+                    rightVid.style.display = 'block';
+                    if (!rightVid.src.includes(right.url)) {
+                        rightVid.src = right.url;
+                    }
+                    rightVid.play().catch(e => {});
+                }
+                if (rightVidOverlay) rightVidOverlay.style.display = 'block';
+                document.getElementById('rightAppTitle').innerText = right.name;
+                document.getElementById('rightAppIcon').innerText = right.icon;
+                if (rightHeaderTitle) rightHeaderTitle.innerText = "SECONDARY VIDEO STREAM (50%)";
             }
 
-            if (leftVid) leftVid.muted = splitAudioSide !== 'LEFT';
-            if (rightVid) rightVid.muted = splitAudioSide !== 'RIGHT';
+            // Audio routing
+            if (leftVid) leftVid.muted = (splitAudioSide !== 'LEFT' || left.type === 'web');
+            if (rightVid) rightVid.muted = (splitAudioSide !== 'RIGHT' || right.type === 'web');
 
             document.getElementById('splitAudioBadge').innerText = splitAudioSide === 'LEFT' ? 'Left Audio 🔊' : 'Right Audio 🔊';
             document.getElementById('paneLeftAudio').innerText = splitAudioSide === 'LEFT' ? '🔊 ACTIVE' : '🔇 MUTED';
             document.getElementById('paneLeftAudio').style.color = splitAudioSide === 'LEFT' ? 'var(--success-green)' : 'var(--text-secondary)';
             document.getElementById('paneRightAudio').innerText = splitAudioSide === 'RIGHT' ? '🔊 ACTIVE' : '🔇 MUTED';
             document.getElementById('paneRightAudio').style.color = splitAudioSide === 'RIGHT' ? 'var(--success-green)' : 'var(--text-secondary)';
+        }
+
+        function handleGoogleInput(e, side) {
+            if (e.key === 'Enter') {
+                execGoogleSearch(side);
+            }
+        }
+
+        function quickSearch(side, query) {
+            const inputId = side === 'left' ? 'leftGoogleInput' : 'rightGoogleInput';
+            const input = document.getElementById(inputId);
+            if (input) input.value = query;
+            execGoogleSearch(side);
+        }
+
+        function refreshGoogleSearch(side) {
+            playSound('focus');
+            const resultsCard = document.getElementById(side === 'left' ? 'leftSearchResults' : 'rightSearchResults');
+            if (resultsCard) resultsCard.classList.remove('show');
+            const input = document.getElementById(side === 'left' ? 'leftGoogleInput' : 'rightGoogleInput');
+            if (input) input.value = '';
+            showToast("⟳ Reloaded Google Mobile Home");
+        }
+
+        function execGoogleSearch(side) {
+            const inputId = side === 'left' ? 'leftGoogleInput' : 'rightGoogleInput';
+            const input = document.getElementById(inputId);
+            const query = input ? input.value.trim() : '';
+            if (!query) return;
+
+            playSound('select');
+            const resultsCard = document.getElementById(side === 'left' ? 'leftSearchResults' : 'rightSearchResults');
+            const titleEl = document.getElementById(side === 'left' ? 'leftResultsTitle' : 'rightResultsTitle');
+            const snippetEl = document.getElementById(side === 'left' ? 'leftResultsSnippet' : 'rightResultsSnippet');
+
+            if (resultsCard && titleEl && snippetEl) {
+                titleEl.innerText = `🔍 Google Search: "${query}"`;
+                const qLower = query.toLowerCase();
+                if (qLower.includes('score') || qLower.includes('cup') || qLower.includes('sport')) {
+                    snippetEl.innerHTML = "⚽ <strong>Live Football:</strong> FC Barcelona 2 - 1 Real Madrid (78')<br><span style='color:#16a34a;'>● Live In-Play</span> • UEFA Champions League semifinal match";
+                } else if (qLower.includes('weather')) {
+                    snippetEl.innerHTML = "🌦️ <strong>Weather:</strong> 24°C / 75°F • Mostly Sunny • Humidity: 48% • Wind: 9 km/h. Clear skies tonight.";
+                } else if (qLower.includes('news') || qLower.includes('tech')) {
+                    snippetEl.innerHTML = "📰 <strong>Tech News:</strong> Google unveils Gemini AI integrations; Android TV launcher split-view update praised for productivity.";
+                } else {
+                    snippetEl.innerHTML = `🌐 <strong>Search Results:</strong> Top web results, articles, and live videos matching "<strong>${query}</strong>" via Google Mobile.`;
+                }
+                resultsCard.classList.add('show');
+            }
+            showToast(`🔍 Searched: ${query}`);
         }
 
         // PIN Dialog System

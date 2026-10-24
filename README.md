@@ -16,13 +16,15 @@ A lightweight, distraction-free, senior- & family-friendly launcher for Android 
 - **TV Hardware Controls**: Quick tiles for switching HDMI inputs, sleep timer, and system settings.
 - **Real-Time App Sync**: Instantly detects newly installed or removed apps via `BroadcastReceiver`.
 - **🔲 Dual-View Split Screen & Real Dual-Stream Player (50/50 Multi-Tasking)**:
-  - **Simultaneous Dual Live Playback**: Watch two live video streams or web players side-by-side at 50/50 split (Sports, Nature 4K, NASA Space, World News, Lo-Fi Beats, Gaming).
-  - **Dynamic Audio Focus Routing**: Smart audio switcher (`🔊 Switch Audio`) mutes the secondary stream so audio never clashes (`🔊 ACTIVE` vs `🔇 MUTED`).
-  - **Instant Pane Swapping**: One-click `⇄ Swap Panes` switches the primary and secondary positions.
-  - **Live Channel Selector**: Easily change live stream feeds on either pane with `📺 Change Stream`.
+  - **Simultaneous Dual Live Playback**: Watch live video on one pane while running another stream or web browsing session side-by-side.
+  - **🌐 Mobile WebView Mode with Google Search**: Run an authentic Android Mobile WebView (Pixel 7 Mobile User-Agent) with Google Search (`https://www.google.com`) side-by-side with your live stream. Browse, check live scores, weather, and breaking news without leaving your TV show!
+  - **Quick Search Shortcuts**: One-click TV-friendly quick chips for `⚽ Scores`, `🌦️ Weather`, `📰 Tech News`, and `🏠 Google Home`.
+  - **Dynamic Audio Focus Routing**: Smart audio switcher (`🔊 Switch Audio`) mutes secondary stream audio (`🔊 ACTIVE` vs `🔇 MUTED`).
+  - **Instant Pane Swapping**: One-click `⇄ Swap Panes` switches the primary and secondary window positions.
+  - **Live Channel Selector**: Easily change live stream feeds or switch to Mobile Webview on either pane.
   - **Fullscreen Zoom**: Expand either stream to 100% full screen (`⛶ Fullscreen / 50/50 Split`) with zero playback interruption.
   - **Android TV Architecture Solution**: Bypasses the standard Android TV multi-window APK restriction by using an in-launcher hardware-accelerated dual-stream rendering engine.
-- **🖥️ Browser Simulator (`simulator.html`)**: Complete interactive TV remote & screen simulator to test all modes, App Locker, and live Dual-Stream video playback directly in your browser.
+- **🖥️ Browser Simulator (`simulator.html`)**: Complete interactive TV remote & screen simulator to test all modes, App Locker, and live Dual-Stream video playback with interactive Google Search Mobile View directly in your browser.
 
 ---
 
