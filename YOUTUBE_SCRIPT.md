@@ -134,8 +134,8 @@ If this video helped you clean up your TV, smash that **Like** button, drop a co
 Tired of ads, sponsored trailers, and lag on your Android TV or Google TV? In this video, we set up Easy TV Launcher — a lightweight, zero-ad, senior-friendly launcher featuring glowing D-pad navigation, Senior XL mode, caregiver PIN lock, and instant HDMI input switching!
 
 ⬇️ DOWNLOAD & LINKS:
-• Release APK: https://github.com/[YOUR-REPO]/releases
-• Project Source Code: https://github.com/[YOUR-REPO]
+• Release APK: https://github.com/sandesh1245/EasyTVLauncher/releases
+• Project Source Code: https://github.com/sandesh1245/EasyTVLauncher
 
 ⏱️ TIMESTAMPS:
 0:00 - Why Modern Smart TVs Are Ruined
