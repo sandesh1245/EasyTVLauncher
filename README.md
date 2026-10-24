@@ -51,7 +51,7 @@ Before sideloading, allow your TV to install third-party apps:
 ### Step 2: Install the Release APK
 
 #### Method A: USB Thumb Drive (No Computer Needed)
-1. Copy [EasyTVLauncher-v1.0.0-release.apk](file:///e:/PlayGround/TV/EasyTVLauncher-v1.0.0-release.apk) onto a USB drive.
+1. Copy [EasyTVLauncherV1.apk](file:///e:/PlayGround/TV/EasyTVLauncherV1.apk) onto a USB drive.
 2. Plug the USB into your TV.
 3. Open any file manager on your TV (e.g., *File Commander*), select the APK, and click **Install**.
 
@@ -61,7 +61,7 @@ Before sideloading, allow your TV to install third-party apps:
 adb connect 192.168.1.50:5555
 
 # Install the release APK
-adb install -r EasyTVLauncher-v1.0.0-release.apk
+adb install -r EasyTVLauncherV1.apk
 
 # (Optional) Set as default launcher via ADB
 adb shell cmd package set-home-activity com.easytv.launcher/.MainActivity

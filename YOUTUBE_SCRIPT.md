@@ -98,7 +98,7 @@ Before your TV lets you install any APK from a USB drive or browser, you must gi
 *(If Developer Options is hidden on newer Google TVs or Fire TVs, just go to **Settings > System/About**, and click the **Android TV OS Build** or **Device Name** 7 times until it says 'You are now a developer!').*
 
 **Method 1: USB Thumb Drive (Simplest)**  
-1. Download the release APK (`EasyTVLauncher-v1.0.0-release.apk`) from the link in the description.  
+1. Download the release APK (`EasyTVLauncherV1.apk`) from the link in the description.  
 2. Copy it onto any standard USB drive and plug it into your TV's USB port.  
 3. Open your file explorer app (like *File Commander* or *FX*), navigate to the USB drive, click the APK, and tap **Install**.
 
@@ -106,7 +106,7 @@ Before your TV lets you install any APK from a USB drive or browser, you must gi
 1. On your TV, make sure Developer Options is unlocked, and toggle ON **Network Debugging** (note your TV’s IP address, e.g. `192.168.1.50`).  
 2. On your computer or phone, run:  
    `adb connect [YOUR-TV-IP]:5555`  
-   `adb install -r EasyTVLauncher-v1.0.0-release.apk`
+   `adb install -r EasyTVLauncherV1.apk`
 
 **Setting It as Default:**  
 Once installed, press the **Home** button on your remote. Your TV will ask which launcher you want to use. Select **Easy TV** and choose **'Always'** — and you’re done! Your TV will now boot instantly into this clean screen every single time."
