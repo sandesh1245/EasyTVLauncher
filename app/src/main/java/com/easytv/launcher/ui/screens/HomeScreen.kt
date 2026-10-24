@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Tv
@@ -44,6 +45,7 @@ fun HomeScreen(
 
     var selectedAppForMenu by remember { mutableStateOf<AppItem?>(null) }
     var showPinDialogForAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var showSplitView by remember { mutableStateOf(false) }
 
     fun handleAppClick(app: AppItem) {
         if (app.isLocked) {
@@ -210,6 +212,13 @@ fun HomeScreen(
                         }
                         item {
                             ActionCard(
+                                title = "Split View",
+                                icon = Icons.Default.Dashboard,
+                                onClick = { showSplitView = true }
+                            )
+                        }
+                        item {
+                            ActionCard(
                                 title = if (uiState.tileSize == TileSizeMode.SENIOR_XL) "Size: XL" else "Size: Standard",
                                 icon = Icons.Default.ZoomIn,
                                 onClick = { viewModel.switchTileSize() }
@@ -322,6 +331,18 @@ fun HomeScreen(
                     action()
                 },
                 onDismiss = { showPinDialogForAction = null }
+            )
+        }
+
+        // In-Launcher Dual-View / Split-Screen
+        if (showSplitView) {
+            SplitViewScreen(
+                installedApps = uiState.favoriteApps + uiState.otherApps,
+                onLaunchApp = { app ->
+                    showSplitView = false
+                    handleAppClick(app)
+                },
+                onClose = { showSplitView = false }
             )
         }
     }

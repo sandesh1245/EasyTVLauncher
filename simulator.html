@@ -431,6 +431,129 @@
             transform: translateX(-50%) translateY(0);
         }
 
+        /* Split View Overlay (Dual-View 50/50 Screen) */
+        .split-view-overlay {
+            position: absolute;
+            inset: 0;
+            background: #090d16;
+            display: none;
+            flex-direction: column;
+            z-index: 120;
+            padding: 20px 24px;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .split-view-overlay.active {
+            display: flex;
+        }
+
+        .split-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .split-panes-container {
+            display: flex;
+            gap: 16px;
+            flex: 1;
+            height: calc(100% - 60px);
+        }
+
+        .split-pane {
+            flex: 1;
+            background: #151a26;
+            border: 2px solid #283347;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .split-pane.focused {
+            border-color: var(--focus-glow) !important;
+            box-shadow: 0 0 24px rgba(255, 213, 79, 0.5);
+        }
+
+        .split-pane-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+
+        .split-audio-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-green);
+            border: 1px solid var(--success-green);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.72rem;
+        }
+
+        .split-pane-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #0a0e17;
+            border-radius: 12px;
+            margin: 12px 0;
+            border: 1px solid #1f2738;
+        }
+
+        .split-pane-icon {
+            font-size: 3rem;
+            margin-bottom: 8px;
+        }
+
+        .split-pane-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .split-pane-sub {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .split-pane-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .split-btn {
+            background: #232c3d;
+            color: #f1f5f9;
+            border: 1px solid #3b4963;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .split-btn:hover, .split-btn.focused {
+            background: var(--focus-glow);
+            color: #000;
+            border-color: var(--focus-glow);
+        }
+
+        .split-btn.danger {
+            background: #7f1d1d;
+            border-color: #ef4444;
+            color: #fee2e2;
+        }
+
         /* Simulated App Running Screen */
         .app-view-overlay {
             position: absolute;
@@ -727,7 +850,7 @@
             <span class="badge-live">D-PAD ACTIVE</span>
         </div>
         <div class="instructions-pill">
-            <kbd>▲▼◄►</kbd> Navigate | <kbd>Enter</kbd> Open | <kbd>L</kbd> Lock App (PIN) | <kbd>1-4</kbd> Modes (Normal, Senior, Kids, Private)
+            <kbd>▲▼◄►</kbd> Navigate | <kbd>Enter</kbd> Open | <kbd>V</kbd> Split View (50/50) | <kbd>L</kbd> Lock App | <kbd>1-4</kbd> Modes
         </div>
     </header>
 
@@ -851,6 +974,10 @@
                             <span class="action-icon">🎮</span>
                             <span class="action-text">HDMI 2</span>
                         </div>
+                        <div class="action-card" tabindex="0" data-action="split-view">
+                            <span class="action-icon">🔲</span>
+                            <span class="action-text">Split View</span>
+                        </div>
                         <div class="action-card" tabindex="0" data-action="toggle-lock">
                             <span class="action-icon">🔒</span>
                             <span class="action-text">Lock App</span>
@@ -865,6 +992,57 @@
 
                 <!-- Toast Notification Banner -->
                 <div class="toast-notify" id="toastNotify">Notification</div>
+
+                <!-- Simulated Dual-View Split Screen (50/50) Overlay -->
+                <div class="split-view-overlay" id="splitOverlay">
+                    <div class="split-top-bar">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-weight: 800; font-size: 1.15rem; color: var(--accent-cyan);">🔲 Dual-View Split Screen (50/50)</span>
+                            <span class="split-audio-badge" id="splitAudioBadge">Left Audio 🔊</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="split-btn" onclick="swapSplitPanes()">⇄ Swap Panes</button>
+                            <button class="split-btn" onclick="toggleSplitAudio()">🔊 Switch Audio</button>
+                            <button class="split-btn danger" onclick="closeSplitView()">✕ Exit Split View</button>
+                        </div>
+                    </div>
+
+                    <div class="split-panes-container">
+                        <!-- Left Window Pane (50%) -->
+                        <div class="split-pane focused" id="paneLeft" tabindex="0" onclick="focusSplitPane('left')">
+                            <div class="split-pane-header">
+                                <span>PRIMARY WINDOW (50%)</span>
+                                <span style="color: var(--success-green); font-size: 0.75rem;" id="paneLeftAudio">🔊 ACTIVE</span>
+                            </div>
+                            <div class="split-pane-content">
+                                <div class="split-pane-icon" id="leftAppIcon">▶️</div>
+                                <div class="split-pane-title" id="leftAppTitle">YouTube</div>
+                                <div class="split-pane-sub">Live 1080p Stream</div>
+                            </div>
+                            <div class="split-pane-actions">
+                                <button class="split-btn" onclick="cycleSplitApp('left')">Change App</button>
+                                <button class="split-btn" onclick="launchSplitFull('left')">⛶ Fullscreen</button>
+                            </div>
+                        </div>
+
+                        <!-- Right Window Pane (50%) -->
+                        <div class="split-pane" id="paneRight" tabindex="0" onclick="focusSplitPane('right')">
+                            <div class="split-pane-header">
+                                <span>SECONDARY WINDOW (50%)</span>
+                                <span style="color: var(--text-secondary); font-size: 0.75rem;" id="paneRightAudio">🔇 MUTED</span>
+                            </div>
+                            <div class="split-pane-content">
+                                <div class="split-pane-icon" id="rightAppIcon">📡</div>
+                                <div class="split-pane-title" id="rightAppTitle">Live Channels</div>
+                                <div class="split-pane-sub">News & Sports Broadcast</div>
+                            </div>
+                            <div class="split-pane-actions">
+                                <button class="split-btn" onclick="cycleSplitApp('right')">Change App</button>
+                                <button class="split-btn" onclick="launchSplitFull('right')">⛶ Fullscreen</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Simulated App Running View -->
                 <div class="app-view-overlay" id="appOverlay">
@@ -916,6 +1094,7 @@
 
             <div class="remote-top-row">
                 <button class="remote-btn power" title="Power / Reset" onclick="resetFocus()">⏻</button>
+                <button class="remote-btn" title="Toggle Dual-View Split Screen" onclick="toggleSplitView()">🔲 Split</button>
                 <button class="remote-btn" title="Toggle Lock on Selected App" onclick="toggleCurrentAppLock()">🔒 Lock</button>
                 <button class="remote-btn" title="Cycle Launcher Mode" onclick="cycleNextMode()">Mode</button>
                 <button class="remote-btn" title="Mute/Unmute Audio" onclick="toggleAudio()" id="audioBtn">🔊</button>
@@ -1152,6 +1331,10 @@
                 playSound('back');
                 return;
             }
+            if (isSplitViewOpen) {
+                closeSplitView();
+                return;
+            }
             if (isAppOpen) {
                 exitApp();
                 playSound('back');
@@ -1166,6 +1349,7 @@
 
         function triggerHome() {
             if (isPinOpen) closePinModal();
+            if (isSplitViewOpen) closeSplitView();
             if (isAppOpen) exitApp();
             currentRow = 1;
             currentCol = 0;
@@ -1346,11 +1530,111 @@
                 launchApp('HDMI 1 Input', '📺');
             } else if (action === 'hdmi2') {
                 launchApp('HDMI 2 (Console)', '🎮');
+            } else if (action === 'split-view') {
+                openSplitView();
             } else if (action === 'toggle-lock') {
                 toggleCurrentAppLock();
             } else if (action === 'settings') {
                 openPinModal('SETTINGS', 'Enter 4-digit Caregiver PIN for System Settings');
             }
+        }
+
+        // Dual-View Split Screen (50/50) Management
+        let isSplitViewOpen = false;
+        let activeSplitFocus = 'left';
+        let splitAudioSide = 'LEFT';
+        const splitPool = [
+            { name: 'YouTube', icon: '▶️', sub: 'Live 1080p Stream' },
+            { name: 'Live Channels', icon: '📡', sub: 'News & Sports Broadcast' },
+            { name: 'Netflix', icon: '🎬', sub: 'Movie Stream 4K' },
+            { name: 'Disney+', icon: '🏰', sub: 'Kids & Family Content' },
+            { name: 'Twitch', icon: '🎮', sub: 'Gaming Livestream' },
+            { name: 'HDMI 1', icon: '📺', sub: 'Console / Cable Box' }
+        ];
+        let leftAppIdx = 0;
+        let rightAppIdx = 1;
+
+        function toggleSplitView() {
+            if (isSplitViewOpen) {
+                closeSplitView();
+            } else {
+                openSplitView();
+            }
+        }
+
+        function openSplitView() {
+            playSound('select');
+            isSplitViewOpen = true;
+            document.getElementById('splitOverlay').classList.add('active');
+            updateSplitViewDisplay();
+            focusSplitPane('left');
+            showToast("🔲 Dual-View Split Screen Opened (50 / 50)");
+        }
+
+        function closeSplitView() {
+            playSound('back');
+            isSplitViewOpen = false;
+            document.getElementById('splitOverlay').classList.remove('active');
+            updateFocusVisual();
+        }
+
+        function swapSplitPanes() {
+            playSound('select');
+            const temp = leftAppIdx;
+            leftAppIdx = rightAppIdx;
+            rightAppIdx = temp;
+            splitAudioSide = splitAudioSide === 'LEFT' ? 'RIGHT' : 'LEFT';
+            updateSplitViewDisplay();
+            showToast("⇄ Swapped Left and Right windows");
+        }
+
+        function toggleSplitAudio() {
+            playSound('select');
+            splitAudioSide = splitAudioSide === 'LEFT' ? 'RIGHT' : 'LEFT';
+            updateSplitViewDisplay();
+            showToast(`🔊 Audio Switched to ${splitAudioSide === 'LEFT' ? 'Left' : 'Right'} Pane`);
+        }
+
+        function focusSplitPane(side) {
+            activeSplitFocus = side;
+            playSound('focus');
+            document.getElementById('paneLeft').classList.toggle('focused', side === 'left');
+            document.getElementById('paneRight').classList.toggle('focused', side === 'right');
+        }
+
+        function cycleSplitApp(side) {
+            playSound('focus');
+            if (side === 'left') {
+                leftAppIdx = (leftAppIdx + 1) % splitPool.length;
+                if (leftAppIdx === rightAppIdx) leftAppIdx = (leftAppIdx + 1) % splitPool.length;
+            } else {
+                rightAppIdx = (rightAppIdx + 1) % splitPool.length;
+                if (rightAppIdx === leftAppIdx) rightAppIdx = (rightAppIdx + 1) % splitPool.length;
+            }
+            updateSplitViewDisplay();
+        }
+
+        function launchSplitFull(side) {
+            playSound('select');
+            const app = side === 'left' ? splitPool[leftAppIdx] : splitPool[rightAppIdx];
+            closeSplitView();
+            launchApp(app.name, app.icon);
+        }
+
+        function updateSplitViewDisplay() {
+            const left = splitPool[leftAppIdx];
+            const right = splitPool[rightAppIdx];
+            document.getElementById('leftAppTitle').innerText = left.name;
+            document.getElementById('leftAppIcon').innerText = left.icon;
+
+            document.getElementById('rightAppTitle').innerText = right.name;
+            document.getElementById('rightAppIcon').innerText = right.icon;
+
+            document.getElementById('splitAudioBadge').innerText = splitAudioSide === 'LEFT' ? 'Left Audio 🔊' : 'Right Audio 🔊';
+            document.getElementById('paneLeftAudio').innerText = splitAudioSide === 'LEFT' ? '🔊 ACTIVE' : '🔇 MUTED';
+            document.getElementById('paneLeftAudio').style.color = splitAudioSide === 'LEFT' ? 'var(--success-green)' : 'var(--text-secondary)';
+            document.getElementById('paneRightAudio').innerText = splitAudioSide === 'RIGHT' ? '🔊 ACTIVE' : '🔇 MUTED';
+            document.getElementById('paneRightAudio').style.color = splitAudioSide === 'RIGHT' ? 'var(--success-green)' : 'var(--text-secondary)';
         }
 
         // PIN Dialog System
@@ -1447,6 +1731,29 @@
                 return;
             }
 
+            if (isSplitViewOpen) {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    focusSplitPane('left');
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    focusSplitPane('right');
+                } else if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    launchSplitFull(activeSplitFocus);
+                } else if (e.key === 'Escape' || e.key === 'Backspace') {
+                    e.preventDefault();
+                    closeSplitView();
+                } else if (e.key === 's' || e.key === 'S') {
+                    e.preventDefault();
+                    swapSplitPanes();
+                } else if (e.key === 'a' || e.key === 'A') {
+                    e.preventDefault();
+                    toggleSplitAudio();
+                }
+                return;
+            }
+
             switch (e.key) {
                 case 'ArrowUp':
                     e.preventDefault();
@@ -1486,6 +1793,10 @@
                 case 'l':
                 case 'L':
                     toggleCurrentAppLock();
+                    break;
+                case 'v':
+                case 'V':
+                    toggleSplitView();
                     break;
                 case '1':
                     selectMode('NORMAL');

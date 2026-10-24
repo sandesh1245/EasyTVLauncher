@@ -15,7 +15,8 @@ A lightweight, distraction-free, senior- & family-friendly launcher for Android 
 - **Caregiver PIN Lock**: Protect settings and mode switching behind a secure 4-digit PIN.
 - **TV Hardware Controls**: Quick tiles for switching HDMI inputs, sleep timer, and system settings.
 - **Real-Time App Sync**: Instantly detects newly installed or removed apps via `BroadcastReceiver`.
-- **🖥️ Browser Simulator (`simulator.html`)**: Interactive TV remote & screen simulator to test all modes and App Locker directly in your browser.
+- **🔲 Dual-View Split Screen (50/50 Multi-Tasking)**: Run two apps or feeds side-by-side directly inside the TV launcher without OS restrictions. Features one-click window swapping (`⇄ Swap`), dynamic audio focus routing (`🔊 Switch Audio`), and fullscreen expansion.
+- **🖥️ Browser Simulator (`simulator.html`)**: Interactive TV remote & screen simulator to test all modes, App Locker, and Dual-View Split Screen directly in your browser.
 
 ---
 
