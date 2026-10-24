@@ -132,20 +132,41 @@
 | **0:10 - 0:18** | रिमोट का D-Pad दबाते हुए। ऐप पर ब्राइट येलो फोकस बॉर्डर ग्लो करता है। | 🎯 **GLOWING FOCUS BORDER** | "यह ग्लोइंग बॉर्डर देखो — दूर से भी पता चलता है कि रिमोट का कर्सर कहाँ है।" |
 | **0:18 - 0:26** | रिमोट से XL मोड टॉगल करते हुए। टाइल्स और फॉन्ट बड़े हो जाते हैं। | 👴 **MUMMY-PAPA KE LIYE XL MODE** | "घर में बुजुर्गों के लिए एक क्लिक में Senior XL Mode ऑन करो — बड़े-बड़े टाइल्स, चलाना एकदम आसान!" |
 | **0:26 - 0:34** | सेटिंग्स खोलते ही 4-अंकों का पिन पैड स्क्रीन पर आ जाता है। | 🔒 **PIN LOCK PROTECTION** | "और सेटिंग्स पर 4-digit PIN लॉक है, ताकि कोई गलती से भी ऐप्स डिलीट न कर सके!" |
-| **0:34 - 0:45** | पेनड्राइव TV में लगाते हुए और APK इंस्टॉल होते हुए। होस्ट नीचे इशारा करता है। | ⬇️ **FREE DOWNLOAD IN PINNED COMMENT** | "फ्री में डाउनलोड करने के लिए पिन कमेंट में दिए लिंक पर जाओ और अभी इंस्टॉल करो!" |
+| **0:34 - 0:42** | पेनड्राइव TV में लगाते हुए और APK इंस्टॉल होते हुए। | ⚡ **1-MINUTE INSTALL** | "यह किसी भी Android TV, Google TV या Fire TV Stick पर चुटकियों में इनस्टॉल हो जाता है।" |
+| **0:42 - 0:50** | होस्ट स्क्रीन पर लाइक और सब्सक्राइब बटन की तरफ इशारा करता है, थम्ब्स-अप दिखाता है। | 👍 **LIKE & SUBSCRIBE!** 🔔 | "अगर यह TV ट्रिक पसंद आई तो अभी LIKE करो और ऐसे ही धांसू टेक ट्रिक्स के लिए SUBSCRIBE करना मत भूलना! डाउनलोड लिंक और पूरे स्टेप्स नीचे डिस्क्रिप्शन और पिन कमेंट में हैं!" |
 
 ---
 
-## 📝 YouTube Description (Copy-Paste Ready)
+## 📝 YouTube Description & Pinned Comment (Copy-Paste Ready)
 
 ```text
-क्या आपका Smart TV भी बहुत lag करता है और फालतू के ads दिखाता है? इस वीडियो में हमने सेटअप किया है "Easy TV Launcher" — एक 100% Free, Zero Ads और Super Fast लॉन्चर जो घर के बुजुर्गों और बच्चों के लिए भी एकदम आसान है!
+क्या आपका Smart TV भी बहुत lag करता है और ऑन करते ही फालतू के sponsored ads दिखाता है? 
 
-⬇️ FREE DOWNLOAD & GITHUB:
+इस वीडियो में हमने इंस्टॉल किया है "Easy TV Launcher" — एक 100% Free, Zero Ads और Super Fast लॉन्चर जो घर के बुजुर्गों और बच्चों के लिए भी चलाना एकदम आसान है!
+
+अगर आपको यह वीडियो पसंद आई हो तो प्लीज वीडियो को 👍 LIKE करें, अपने दोस्तों के साथ ↗️ SHARE करें और नए Tech Videos के लिए चैनल को 🔔 SUBSCRIBE करना बिल्कुल न भूलें!
+
+========================================
+⬇️ FREE DOWNLOAD LINK:
+========================================
 • Release APK (EasyTVLauncherV1.apk): https://github.com/sandesh1245/EasyTVLauncher
-• Full Source Code: https://github.com/sandesh1245/EasyTVLauncher
+• Full Source Code on GitHub: https://github.com/sandesh1245/EasyTVLauncher
 
+========================================
+📋 TV में INSTALL करने के आसान स्टेप्स (Step-by-Step):
+========================================
+1️⃣ Step 1: ऊपर दिए गए GitHub लिंक से "EasyTVLauncherV1.apk" डाउनलोड करें।
+2️⃣ Step 2: TV में Unknown Sources Enable करें:
+   • Settings > Apps > Security & Restrictions > Install unknown apps > अपने File Manager को "ON / Allow" करें।
+   (अगर ऑप्शन न दिखे: Settings > About > Android TV OS Build पर 7 बार क्लिक करें)।
+3️⃣ Step 3: APK फाइल को पेनड्राइव (USB) में डालकर TV के USB पोर्ट में लगाएं।
+4️⃣ Step 4: TV का File Manager खोलें, APK पर क्लिक करें और "Install" दबाएं।
+5️⃣ Step 5: रिमोट का HOME बटन दबाएं, "Easy TV" को सेलेक्ट करके "Always" पर क्लिक कर दें!
+बस! आपका TV अब हमेशा बिना किसी ऐड के सुपर फास्ट स्पीड में खुलेगा।
+
+========================================
 ⏱️ वीडियो टाइमस्टैम्प्स (Timestamps):
+========================================
 0:00 - Smart TV में Ads और Lag की समस्या
 0:45 - TV धीमा क्यों हो जाता है?
 2:00 - Easy TV Launcher का नया Look
@@ -156,7 +177,7 @@
 5:30 - सबसे ज़रूरी: Unknown Sources कैसे On करें?
 6:15 - Pen Drive से TV में कैसे Install करें?
 7:15 - Easy TV को Default Home Screen कैसे बनाएं?
-7:45 - Conclusion और Outro
+7:45 - Like, Share & Subscribe!
 
-#SmartTV #AndroidTV #GoogleTV #TechHacksInHindi #AndroidLauncher #CordCutting #HindiTech #Shorts
+#SmartTV #AndroidTV #GoogleTV #TechHacksInHindi #AndroidLauncher #CordCutting #HindiTech #Shorts #TechHacks
 ```

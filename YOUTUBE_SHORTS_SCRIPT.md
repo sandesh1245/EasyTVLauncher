@@ -28,7 +28,28 @@
 | **0:18 - 0:26** | Finger clicks the 'XL' button on remote. The tiles instantly double in size with ultra-bold typography. | 👴 **1-CLICK SENIOR XL MODE** | "Got elderly parents or grandparents? Tap one button into Senior XL Mode: huge tiles, clean fonts, impossible to mess up." |
 | **0:26 - 0:34** | Clicking 'Settings'. An on-screen 4-digit PIN lock keypad pops up. | 🔒 **CAREGIVER PIN LOCK** | "And best of all: settings are locked behind a PIN code so nobody can accidentally delete Netflix or mess up your Wi-Fi!" |
 | **0:34 - 0:42** | Quick montage of HDMI 1, HDMI 2, and Sleep Timer tiles right on the home screen. | 📺 **DIRECT HDMI SWITCHER** | "You even get one-tap shortcuts to switch directly to your HDMI inputs or set a sleep timer." |
-| **0:42 - 0:50** | Sideloading via USB drive or ADB screen. Cut back to host pointing down. | ⬇️ **FREE ON GITHUB** | "It works on any Android TV, Google TV, or Fire Stick. The download link is in the pinned comment below!" |
+| **0:42 - 0:50** | Sideloading via USB screen. Host points to Like and Subscribe buttons. | 👍 **LIKE & SUBSCRIBE!** 🔔 | "Double-tap to LIKE and SUBSCRIBE for more Smart TV hacks! Complete step-by-step install guide and free APK link are in the description & pinned comment!" |
+
+---
+
+### 📝 Pinned Comment / Description (Step-by-Step Instructions)
+```text
+Tired of ads and lag on your Smart TV? Try the free Easy TV Launcher!
+
+👍 Don't forget to LIKE & SUBSCRIBE for more awesome TV tips!
+
+⬇️ FREE DOWNLOAD:
+• Get EasyTVLauncherV1.apk on GitHub: https://github.com/sandesh1245/EasyTVLauncher
+
+📋 4-STEP INSTALLATION GUIDE:
+1️⃣ Step 1: Download EasyTVLauncherV1.apk from the GitHub link above.
+2️⃣ Step 2: On your TV, allow Unknown Sources (Settings > Apps > Security > Install unknown apps > Toggle ON).
+3️⃣ Step 3: Copy the APK to a USB drive, plug it into your TV, and click Install using any File Explorer.
+4️⃣ Step 4: Press HOME on your TV remote, select Easy TV, and choose "Always"!
+Done! Your TV is now 100% ad-free and lightning fast! 🚀
+
+#AndroidTV #GoogleTV #SmartTV #TechHacks #CordCutting #Shorts
+```
 
 ---
 
